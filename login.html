@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign in — Nexlance</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body> 
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="logo">◆ Nexlance</div>
+        <p class="auth-sub">Build beautiful websites & dashboards — sign in to continue.</p>
+      </div>
+
+      <form id="loginForm" class="form">
+        <label>
+          Email
+          <input id="email" type="email" placeholder="you@company.com" required>
+        </label>
+
+        <label>
+          Password
+          <div class="password-row">
+            <input id="password" type="password" placeholder="••••••••" required minlength="8">
+            <button type="button" id="togglePassword" class="small-btn">Show</button>
+          </div>
+        </label>
+
+        <div class="form-row form-meta">
+          <label class="small">
+            <input id="remember" type="checkbox"> Remember me
+          </label>
+          <a href="terms.html" class="link-muted">Terms</a>
+        </div>
+
+        <div class="form-row">
+          <button id="submitBtn" class="btn-primary btn-block" type="submit">Sign in</button>
+        </div>
+
+        <div id="formMessage" class="form-message" aria-live="polite"></div>
+
+        <p class="demo-note">Demo account: <strong>demo@nexlance.com</strong> / <strong>demopassword</strong></p>
+      </form>
+    </div>
+
+    <aside class="auth-art">
+      <!-- Put the dashboard image you uploaded here -->
+      <!-- Save your uploaded dash.jpg into images/dash.jpg -->
+      <img src="images/dash.jpeg" alt="Dashboard preview" loading="lazy">
+      <div class="auth-art-caption">Live analytics, quick insights, and powerful control — all in one place.</div>
+    </aside>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+</html>

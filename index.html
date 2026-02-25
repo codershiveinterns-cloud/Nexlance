@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexlance — Create Your Website</title>
+    <!-- Favicon -->
+<link rel="icon" type="image/png" href="images/fav.png"> 
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="logo-icon">◆</span>
+                Nexlance
+            </a>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item has-dropdown">
+                    <a href="#products">Products <span class="arrow">▾</span></a>
+                    <div class="dropdown">
+                        <div class="dropdown-grid">
+                            <a href="#" class="dropdown-item">
+                                <span class="dropdown-icon">🌐</span>
+                                <div>
+                                    <h4>Websites</h4>
+                                    <p>Professional site builder</p>
+                                </div>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <span class="dropdown-icon">🛒</span>
+                                <div>
+                                    <h4>E-commerce</h4>
+                                    <p>Online store solutions</p>
+                                </div>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <span class="dropdown-icon">📧</span>
+                                <div>
+                                    <h4>Email Marketing</h4>
+                                    <p>Campaign tools</p>
+                                </div>
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <span class="dropdown-icon">📅</span>
+                                <div>
+                                    <h4>Scheduling</h4>
+                                    <p>Appointment booking</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item has-dropdown">
+                    <a href="#templates">Templates <span class="arrow">▾</span></a>
+                    <div class="dropdown dropdown-templates">
+                        <div class="dropdown-grid templates-grid">
+                            <a href="#" class="template-thumb">
+                                <div class="thumb-img" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+                                <span>Portfolio</span>
+                            </a>
+                            <a href="#" class="template-thumb">
+                                <div class="thumb-img" style="background: linear-gradient(135deg, #f093fb, #f5576c);"></div>
+                                <span>Business</span>
+                            </a>
+                            <a href="#" class="template-thumb">
+                                <div class="thumb-img" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"></div>
+                                <span>Blog</span>
+                            </a>
+                            <a href="#" class="template-thumb">
+                                <div class="thumb-img" style="background: linear-gradient(135deg, #43e97b, #38f9d7);"></div>
+                                <span>Store</span>
+                            </a>
+                        </div>
+                        <a href="#templates" class="dropdown-view-all">View All Templates →</a>
+                    </div>
+                </li>
+                <li class="nav-item"><a href="#pricing">Pricing</a></li>
+                <li class="nav-item"><a href="#features">Features</a></li>
+                <li class="nav-item"><a href="#resources">Resources</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="login.html" class="btn-text">Log In</a>
+                <a href="login.html" class="btn-primary">Get Started</a>
+            </div>
+            <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="hero-gradient"></div>
+            <div class="hero-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    New: AI-Powered Design Assistant
+                </div>
+                <h1 class="hero-title">
+                    Build your brand.<br>
+                    <span class="gradient-text">Build your future.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Create a professional website, online store, or portfolio. 
+                    No coding required. Just drag, drop, and publish.
+                </p>
+                <div class="hero-cta">
+                    <a href="#" class="btn-primary btn-large">
+                        Start Free Trial
+                    </a>
+                    <a href="#" class="btn-secondary btn-large">
+                        <span class="play-icon">▶</span> Watch Demo
+                    </a>
+                </div>
+                <p class="hero-note">No credit card required • Free 14-day trial</p>
+            </div>
+            <div class="hero-visual">
+                <div class="browser-mockup">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="browser-address"></div>
+                    </div>
+                    <div class="browser-content">
+                        <img src="images/dash.jpeg" alt="Dashboard preview" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="demo-site">
+                            <div class="demo-nav"></div>
+                            <div class="demo-hero"></div>
+                            <!-- <div class="demo-grid">
+                                <div class="demo-card"></div>
+                                <div class="demo-card"></div>
+                                <div class="demo-card"></div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="floating-card card-1">
+                    <span class="card-icon">📈</span>
+                    <span class="card-text">Traffic +47%</span>
+                </div>
+                <div class="floating-card card-2">
+                    <span class="card-icon">🛒</span>
+                    <span class="card-text">New Order!</span>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brands Section -->
+    <section class="brands">
+        <div class="container">
+            <p class="brands-title">Trusted by millions of creators worldwide</p>
+            <div class="brands-grid">
+                <div class="brand-item">
+                    <span class="brand-logo">◉ TECHCRUNCH</span>
+                </div>
+                <div class="brand-item">
+                    <span class="brand-logo">◇ FORBES</span>
+                </div>
+                <div class="brand-item">
+                    <span class="brand-logo">○ WIRED</span>
+                </div>
+                <div class="brand-item">
+                    <span class="brand-logo">◆ FAST COMPANY</span>
+                </div>
+                <div class="brand-item">
+                    <span class="brand-logo">● THE VERGE</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Features</span>
+                <h2 class="section-title">Everything you need to succeed online</h2>
+                <p class="section-subtitle">
+                    Powerful tools designed for creators, entrepreneurs, and businesses of all sizes.
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card feature-large">
+                    <div class="feature-visual">
+                        <img src="images/f3.png" alt="Feature Preview">
+                        <!-- <div class="visual-editor">
+                            <div class="editor-sidebar"></div>
+                            <div class="editor-canvas">
+                                <div class="canvas-block" style="height: 40px;"></div>
+                                <div class="canvas-block" style="height: 80px; width: 60%;"></div>
+                                <div class="canvas-block" style="height: 120px;"></div>
+                                <div class="canvas-block" style="height: 30px; width: 40%;"></div>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="feature-content">
+                        <span class="feature-icon">✏️</span>
+                        <h3>Drag & Drop Editor</h3>
+                        <p>Intuitive visual editor that lets you design without writing a single line of code. Move elements freely and see changes in real-time.</p>
+                        <a href="#" class="feature-link">Learn more →</a>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Professional Templates</h3>
+                    <p>200+ award-winning templates designed by world-class designers.</p>
+                    <a href="#" class="feature-link">Browse templates →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Mobile Responsive</h3>
+                    <p>Every site looks perfect on any device automatically.</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>SEO Tools</h3>
+                    <p>Built-in optimization to help you rank higher on search engines.</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>SSL Security</h3>
+                    <p>Free SSL certificates for every site. Keep your visitors safe.</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                <div class="feature-card feature-large">
+                    <div class="feature-content">
+                        <span class="feature-icon">📊</span>
+                        <h3>Analytics Dashboard</h3>
+                        <p>Track visitors, sales, and engagement with detailed analytics. Understand your audience and grow your business with data-driven insights.</p>
+                        <a href="#" class="feature-link">Learn more →</a>
+                    </div>
+                    <div class="feature-visual">
+                        <img src="images/analytics.png" alt="Analytics Dashboard Preview">
+                        <div class="analytics-preview">
+                            <!-- <div class="analytics-header">
+                                <span></span><span></span><span></span>
+                            </div> -->
+                            <div class="analytics-chart">
+                                <div class="bar" style="height: 40%;"></div>
+                                <div class="bar" style="height: 60%;"></div>
+                                <div class="bar" style="height: 45%;"></div>
+                                <div class="bar" style="height: 80%;"></div>
+                                <div class="bar" style="height: 65%;"></div>
+                                <div class="bar" style="height: 90%;"></div>
+                                <div class="bar" style="height: 75%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Templates Section -->
+    <section class="templates" id="templates">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Templates</span>
+                <h2 class="section-title">Start with a beautiful template</h2>
+                <p class="section-subtitle">
+                    Choose from hundreds of professionally designed templates. Customize everything to match your brand.
+                </p>
+            </div>
+            <div class="templates-filter">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="portfolio">Portfolio</button>
+                <button class="filter-btn" data-filter="business">Business</button>
+                <button class="filter-btn" data-filter="ecommerce">E-commerce</button>
+                <button class="filter-btn" data-filter="blog">Blog</button>
+            </div>
+            <div class="templates-grid">
+                <div class="template-card" data-category="portfolio">
+                    <div class="template-preview" >
+                        <img src="images/f2.webp" alt="Portfolio Template" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="template-overlay">
+                            <button class="btn-preview">Preview</button>
+                            <button class="btn-use">Use Template</button>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h4>Minimal Portfolio</h4>
+                        <span>Portfolio</span>
+                    </div>
+                </div>
+                <div class="template-card" data-category="business">
+                    <div class="template-preview" >
+                        <img src="images/f1.webp" alt="Business Template" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="template-overlay">
+                            <button class="btn-preview">Preview</button>
+                            <button class="btn-use">Use Template</button>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h4>Agency Pro</h4>
+                        <span>Business</span>
+                    </div>
+                </div>
+                <div class="template-card" data-category="ecommerce">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #ff6b6b, #feca57);">
+                        <img src="images/f4.avif" alt="Business Template" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="template-overlay">
+                            <button class="btn-preview">Preview</button>
+                            <button class="btn-use">Use Template</button>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h4>Fashion Store</h4>
+                        <span>E-commerce</span>
+                    </div>
+                </div>
+                <div class="template-card" data-category="blog">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7);">
+                        <img src="images/agency.jpg" alt="Business Template" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="template-overlay">
+                            <button class="btn-preview">Preview</button>
+                            <button class="btn-use">Use Template</button>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h4>Writer's Blog</h4>
+                        <span>Blog</span>
+                    </div>
+                </div>
+                <div class="template-card" data-category="portfolio">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #00b894, #00cec9);">
+                        <img src="images/photogrPHER.avif" alt="Business Template" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="template-overlay">
+                            <button class="btn-preview">Preview</button>
+                            <button class="btn-use">Use Template</button>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h4>Photographer</h4>
+                        <span>Portfolio</span>
+                    </div>
+                </div>
+                <div class="template-card" data-category="business">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #2d3436, #636e72);">
+                        <img src="images/startup.avif" alt="Business Template" style="width:100%; height:100%; object-fit:cover;">
+                        <div class="template-overlay">
+                            <button class="btn-preview">Preview</button>
+                            <button class="btn-use">Use Template</button>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h4>Startup Landing</h4>
+                        <span>Business</span>
+                    </div>
+                </div>
+            </div>
+            <div class="templates-cta">
+                <a href="#" class="btn-secondary btn-large">Browse All Templates</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">How It Works</span>
+                <h2 class="section-title">Launch your website in 4 easy steps</h2>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Choose a Template</h3>
+                    <p>Browse our collection and pick a template that fits your vision.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Customize Design</h3>
+                    <p>Use our drag-and-drop editor to make it uniquely yours.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Add Content</h3>
+                    <p>Upload images, write text, and add your products or services.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3>Publish & Grow</h3>
+                    <p>Go live and start reaching your audience immediately.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Pricing</span>
+                <h2 class="section-title">Simple, transparent pricing</h2>
+                <p class="section-subtitle">
+                    Choose the plan that's right for you. All plans include a free 14-day trial.
+                </p>
+            </div>
+            <div class="pricing-toggle">
+                <span class="toggle-label">Monthly</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="billing-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Annual <span class="save-badge">Save 25%</span></span>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Personal</h3>
+                        <p>Perfect for personal projects</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="currency">$</span>
+                        <span class="amount" data-monthly="16" data-annual="12">12</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span> Custom domain</li>
+                        <li><span class="check">✓</span> SSL certificate</li>
+                        <li><span class="check">✓</span> Unlimited bandwidth</li>
+                        <li><span class="check">✓</span> 24/7 support</li>
+                        <li class="disabled"><span class="x">✗</span> E-commerce</li>
+                        <li class="disabled"><span class="x">✗</span> Advanced analytics</li>
+                    </ul>
+                    <a href="#" class="btn-outline btn-full">Start Free Trial</a>
+                </div>
+                <div class="pricing-card popular">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="pricing-header">
+                        <h3>Business</h3>
+                        <p>For growing businesses</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="currency">$</span>
+                        <span class="amount" data-monthly="26" data-annual="23">23</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span> Everything in Personal</li>
+                        <li><span class="check">✓</span> E-commerce (3% fee)</li>
+                        <li><span class="check">✓</span> Professional email</li>
+                        <li><span class="check">✓</span> Advanced analytics</li>
+                        <li><span class="check">✓</span> Promotional popups</li>
+                        <li><span class="check">✓</span> Priority support</li>
+                    </ul>
+                    <a href="#" class="btn-primary btn-full">Start Free Trial</a>
+                </div>
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Commerce</h3>
+                        <p>For serious sellers</p>
+                    </div>
+                    <div class="pricing-price">
+                        <span class="currency">$</span>
+                        <span class="amount" data-monthly="40" data-annual="30">30</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span> Everything in Business</li>
+                        <li><span class="check">✓</span> No transaction fees</li>
+                        <li><span class="check">✓</span> Point of Sale</li>
+                        <li><span class="check">✓</span> Inventory management</li>
+                        <li><span class="check">✓</span> Advanced shipping</li>
+                        <li><span class="check">✓</span> Customer accounts</li>
+                    </ul>
+                    <a href="#" class="btn-outline btn-full">Start Free Trial</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Testimonials</span>
+                <h2 class="section-title">Loved by creators worldwide</h2>
+            </div>
+            <div class="testimonials-slider" id="testimonials-slider">
+                <div class="testimonial-card active">
+                    <div class="testimonial-content">
+                        <div class="stars">★★★★★</div>
+                        <p>"Nexlance transformed my small business. I had a professional website up and running in just one afternoon. The templates are gorgeous!"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SJ</div>
+                        <div class="author-info">
+                            <h4>Sarah Johnson</h4>
+                            <span>Founder, Artisan Coffee Co.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">★★★★★</div>
+                        <p>"As a photographer, I needed a portfolio that would showcase my work beautifully. Nexlance delivered beyond my expectations."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MC</div>
+                        <div class="author-info">
+                            <h4>Michael Chen</h4>
+                            <span>Professional Photographer</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars">★★★★★</div>
+                        <p>"The e-commerce features helped me launch my online store quickly. Sales have increased by 200% since switching to Nexlance."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">ER</div>
+                        <div class="author-info">
+                            <h4>Emily Rodriguez</h4>
+                            <span>Owner, Style Boutique</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-dots">
+                <span class="dot active" data-index="0"></span>
+                <span class="dot" data-index="1"></span>
+                <span class="dot" data-index="2"></span>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to build your dream website?</h2>
+                <p>Start your free 14-day trial today. No credit card required.</p>
+                <a href="#" class="btn-primary btn-large">Get Started Free</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <span class="logo-icon">◆</span>
+                        Nexlance
+                    </a>
+                    <p>Build beautiful websites without writing a single line of code.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Twitter">𝕏</a>
+                        <a href="#" aria-label="LinkedIn">in</a>
+                        <a href="#" aria-label="Instagram">◉</a>
+                        <a href="#" aria-label="YouTube">▶</a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#">Templates</a></li>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Updates</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Webinars</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Developers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="refund.html">Refund Policy</a></li>
+                        <li><a href="#">GDPR</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Nexlance. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="terms.html">Terms & Services </a>
+                    <a href="#">Sitemap</a>
+                    <a href="#">Status</a>
+                    <a href="#">Security</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access & Roles — Nexlance</title>
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="app.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div class="container">
+
+  <aside class="sidebar">
+    <h2 class="logo">Nexlance</h2>
+    <ul class="nav">
+      <li><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="clients.html">👥 Clients</a></li>
+      <li><a href="team.html">🧑‍💼 Team</a></li>
+      <li><a href="projects.html">📁 Projects</a></li>
+      <li><a href="invoices.html">🧾 Invoices</a></li>
+      <li><a href="reports.html">📈 Reports</a></li>
+      <li><a href="services.html">🛠 Services</a></li>
+      <li class="active"><a href="access-roles.html">🔐 Access / Roles</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <input type="text" placeholder="Search...">
+      <div class="profile">Admin</div>
+    </div>
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Access &amp; Roles</h1>
+        <p>Control what each role can see and do</p>
+      </div>
+    </div>
+
+    <!-- Role Cards -->
+    <h3 style="color:#4b3fbf;font-size:1rem;margin-bottom:14px;">Role Overview</h3>
+    <div class="roles-grid">
+      <div class="role-card">
+        <div class="role-icon">👑</div>
+        <h3>Admin</h3>
+        <p>Full access to all features, data, and settings. Can manage team and billing.</p>
+        <div style="margin-top:10px;"><span class="badge badge-red">Full Access</span></div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🗂</div>
+        <h3>Project Manager</h3>
+        <p>Manages projects, tasks, team assignments, and client communication.</p>
+        <div style="margin-top:10px;"><span class="badge badge-blue">High Access</span></div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">💻</div>
+        <h3>Developer</h3>
+        <p>Works on assigned tasks. Can update task status and upload files.</p>
+        <div style="margin-top:10px;"><span class="badge badge-purple">Task Access</span></div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">🎨</div>
+        <h3>Designer</h3>
+        <p>Manages design tasks, uploads assets, and updates design progress.</p>
+        <div style="margin-top:10px;"><span class="badge badge-teal">Design Access</span></div>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">👤</div>
+        <h3>Client</h3>
+        <p>Limited view of their own project progress and invoice status only.</p>
+        <div style="margin-top:10px;"><span class="badge badge-gray">Limited</span></div>
+      </div>
+    </div>
+
+    <!-- Permissions Matrix -->
+    <h3 style="color:#4b3fbf;font-size:1rem;margin-bottom:14px;">Permissions Matrix</h3>
+    <div class="permissions-matrix">
+      <table class="permissions-table">
+        <thead>
+          <tr>
+            <th style="min-width:200px;">Permission</th>
+            <th>👑 Admin</th>
+            <th>🗂 PM</th>
+            <th>💻 Developer</th>
+            <th>🎨 Designer</th>
+            <th>👤 Client</th>
+          </tr>
+        </thead>
+        <tbody id="permissionsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Team Members with Roles -->
+    <h3 style="color:#4b3fbf;font-size:1rem;margin-bottom:14px;">Team Members &amp; Assigned Roles</h3>
+    <div class="table-card">
+      <div class="table-header">
+        <h3>Current Team</h3>
+        <a href="team.html" class="btn btn-sm btn-secondary">Manage Team →</a>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Member</th><th>Email</th><th>Role</th><th>Can Edit Tasks</th><th>Can See Revenue</th><th>Can Create Invoices</th><th>Can Upload Files</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="teamRolesBody">
+          <tr><td colspan="8"><div class="empty-state" style="padding:30px;"><div class="e-icon">⏳</div><h3>Loading...</h3></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<!-- Edit Role Modal -->
+<div class="modal-overlay" id="editRoleModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Edit Permissions — <span id="editRoleName"></span></h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:10px;">
+      <label style="display:flex;justify-content:space-between;align-items:center;font-size:0.875rem;">
+        Role
+        <select id="erRole" style="padding:8px 12px;border-radius:9px;border:1px solid #e0d6ff;font-family:Segoe UI,sans-serif;">
+          <option>Admin</option><option>Project Manager</option>
+          <option>Developer</option><option>Designer</option><option>Client</option>
+        </select>
+      </label>
+      <label style="display:flex;justify-content:space-between;align-items:center;font-size:0.875rem;">
+        Can Edit Tasks
+        <label class="toggle"><input type="checkbox" id="erTasks"><span class="toggle-slider"></span></label>
+      </label>
+      <label style="display:flex;justify-content:space-between;align-items:center;font-size:0.875rem;">
+        Can See Revenue
+        <label class="toggle"><input type="checkbox" id="erRevenue"><span class="toggle-slider"></span></label>
+      </label>
+      <label style="display:flex;justify-content:space-between;align-items:center;font-size:0.875rem;">
+        Can Create Invoices
+        <label class="toggle"><input type="checkbox" id="erInvoice"><span class="toggle-slider"></span></label>
+      </label>
+      <label style="display:flex;justify-content:space-between;align-items:center;font-size:0.875rem;">
+        Can Upload Files
+        <label class="toggle"><input type="checkbox" id="erUpload"><span class="toggle-slider"></span></label>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRole()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script>
+let members = [];
+let editingMemberId = null;
+
+const permissions = [
+  { key: 'view_dashboard',     label: '📊 View Dashboard',        roles: { Admin:true, 'Project Manager':true, Developer:true, Designer:true, Client:false } },
+  { key: 'view_clients',       label: '👥 View Clients',           roles: { Admin:true, 'Project Manager':true, Developer:false, Designer:false, Client:false } },
+  { key: 'edit_clients',       label: '✏️ Edit Client Info',       roles: { Admin:true, 'Project Manager':true, Developer:false, Designer:false, Client:false } },
+  { key: 'view_projects',      label: '📁 View All Projects',      roles: { Admin:true, 'Project Manager':true, Developer:true, Designer:true, Client:true } },
+  { key: 'manage_projects',    label: '⚙️ Manage Projects',        roles: { Admin:true, 'Project Manager':true, Developer:false, Designer:false, Client:false } },
+  { key: 'edit_tasks',         label: '✅ Edit Tasks',              roles: { Admin:true, 'Project Manager':true, Developer:true, Designer:true, Client:false } },
+  { key: 'delete_tasks',       label: '🗑 Delete Tasks',            roles: { Admin:true, 'Project Manager':true, Developer:false, Designer:false, Client:false } },
+  { key: 'see_revenue',        label: '💰 View Revenue Data',      roles: { Admin:true, 'Project Manager':true, Developer:false, Designer:false, Client:false } },
+  { key: 'create_invoices',    label: '🧾 Create Invoices',        roles: { Admin:true, 'Project Manager':true, Developer:false, Designer:false, Client:false } },
+  { key: 'manage_invoices',    label: '💳 Manage Payments',        roles: { Admin:true, 'Project Manager':false, Developer:false, Designer:false, Client:false } },
+  { key: 'upload_files',       label: '📤 Upload Files',           roles: { Admin:true, 'Project Manager':true, Developer:true, Designer:true, Client:false } },
+  { key: 'manage_team',        label: '👥 Manage Team Members',    roles: { Admin:true, 'Project Manager':false, Developer:false, Designer:false, Client:false } },
+  { key: 'view_reports',       label: '📈 View Reports',           roles: { Admin:true, 'Project Manager':true, Developer:false, Designer:false, Client:false } },
+  { key: 'manage_services',    label: '🛠 Manage Services',        roles: { Admin:true, 'Project Manager':false, Developer:false, Designer:false, Client:false } },
+  { key: 'system_settings',    label: '⚙️ System Settings',        roles: { Admin:true, 'Project Manager':false, Developer:false, Designer:false, Client:false } },
+];
+
+const roleOrder = ['Admin', 'Project Manager', 'Developer', 'Designer', 'Client'];
+
+async function init() {
+  members = await fetchTeamMembers();
+  renderPermissionsMatrix();
+  renderTeamRoles();
+}
+
+function renderPermissionsMatrix() {
+  const tbody = document.getElementById('permissionsBody');
+  tbody.innerHTML = permissions.map(p => `
+    <tr>
+      <td>${p.label}</td>
+      ${roleOrder.map(role => `
+        <td>
+          ${p.roles[role]
+            ? '<span style="color:#00b894;font-size:1.1rem;">✓</span>'
+            : '<span style="color:#e0d6ff;font-size:1.1rem;">✗</span>'}
+        </td>
+      `).join('')}
+    </tr>
+  `).join('');
+}
+
+function renderTeamRoles() {
+  const tbody = document.getElementById('teamRolesBody');
+  if (!members.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state" style="padding:30px;"><div class="e-icon">🧑‍💼</div><h3>No team members</h3><p><a href="team.html" style="color:#6c5ce7;">Add team members</a></p></div></td></tr>`;
+    return;
+  }
+  const roleColors = { 'Admin':'badge-red','Project Manager':'badge-blue','Developer':'badge-purple','Designer':'badge-teal','Client':'badge-gray' };
+  const check = v => v ? '<span style="color:#00b894;">✓</span>' : '<span style="color:#ddd;">✗</span>';
+  tbody.innerHTML = members.map(m => `<tr>
+    <td><strong>${m.name}</strong></td>
+    <td style="color:#888;font-size:0.85rem;">${m.email}</td>
+    <td><span class="badge ${roleColors[m.role]||'badge-gray'}">${m.role}</span></td>
+    <td style="text-align:center;">${check(m.can_edit_tasks)}</td>
+    <td style="text-align:center;">${check(m.can_see_revenue)}</td>
+    <td style="text-align:center;">${check(m.can_create_invoices)}</td>
+    <td style="text-align:center;">${check(m.can_upload_files)}</td>
+    <td>
+      <button class="action-btn action-edit" onclick="openEditRole('${m.id}')" title="Edit role">✏️</button>
+    </td>
+  </tr>`).join('');
+}
+
+function openEditRole(id) {
+  const m = members.find(x => x.id === id);
+  if (!m) return;
+  editingMemberId = id;
+  document.getElementById('editRoleName').textContent = m.name;
+  document.getElementById('erRole').value = m.role;
+  document.getElementById('erTasks').checked = m.can_edit_tasks;
+  document.getElementById('erRevenue').checked = m.can_see_revenue;
+  document.getElementById('erInvoice').checked = m.can_create_invoices;
+  document.getElementById('erUpload').checked = m.can_upload_files;
+  document.getElementById('editRoleModal').classList.add('active');
+}
+function closeModal() { document.getElementById('editRoleModal').classList.remove('active'); }
+
+async function saveRole() {
+  const data = {
+    role: document.getElementById('erRole').value,
+    can_edit_tasks: document.getElementById('erTasks').checked,
+    can_see_revenue: document.getElementById('erRevenue').checked,
+    can_create_invoices: document.getElementById('erInvoice').checked,
+    can_upload_files: document.getElementById('erUpload').checked
+  };
+  try {
+    const upd = await updateTeamMember(editingMemberId, data);
+    const idx = members.findIndex(m => m.id === editingMemberId);
+    if (idx > -1) members[idx] = { ...members[idx], ...upd };
+    closeModal(); renderTeamRoles();
+    showToast('Permissions updated!', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// Auto-fill permissions on role change
+document.getElementById('erRole').addEventListener('change', function() {
+  const presets = {
+    'Admin':           { t:true,  r:true,  i:true,  u:true  },
+    'Project Manager': { t:true,  r:true,  i:true,  u:true  },
+    'Developer':       { t:true,  r:false, i:false, u:true  },
+    'Designer':        { t:true,  r:false, i:false, u:true  },
+    'Client':          { t:false, r:false, i:false, u:false }
+  };
+  const p = presets[this.value] || {};
+  document.getElementById('erTasks').checked   = p.t;
+  document.getElementById('erRevenue').checked = p.r;
+  document.getElementById('erInvoice').checked = p.i;
+  document.getElementById('erUpload').checked  = p.u;
+});
+
+document.getElementById('editRoleModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+init();
+</script>
+</body>
+</html>

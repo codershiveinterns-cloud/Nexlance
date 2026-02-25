@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Nexlance</title>
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="app.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div class="container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2 class="logo">Nexlance</h2>
+    <ul class="nav">
+      <li class="active"><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="clients.html">👥 Clients</a></li>
+      <li><a href="team.html">🧑‍💼 Team</a></li>
+      <li><a href="projects.html">📁 Projects</a></li>
+      <li><a href="invoices.html">🧾 Invoices</a></li>
+      <li><a href="reports.html">📈 Reports</a></li>
+      <li><a href="services.html">🛠 Services</a></li>
+      <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <input type="text" placeholder="Search dashboards, clients, projects...">
+      <div class="profile">Admin</div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Dashboard</h1>
+        <p id="dashDate" style="color:#999;font-size:0.88rem;"></p>
+      </div>
+      <div class="page-header-actions">
+        <a href="invoice-create.html" class="btn btn-secondary btn-sm">+ Invoice</a>
+        <a href="clients.html" class="btn btn-primary btn-sm">+ Add Client</a>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <section class="cards">
+      <div class="card">
+        <h4>Monthly Revenue</h4>
+        <h2 id="dRevenue">₹4,80,000</h2>
+        <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">↑ 12% vs last month</div>
+      </div>
+      <div class="card">
+        <h4>Active Projects</h4>
+        <h2 id="dProjects">18</h2>
+        <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Across all clients</div>
+      </div>
+      <div class="card">
+        <h4>Pending Approvals</h4>
+        <h2 id="dApprovals">6</h2>
+        <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Awaiting review</div>
+      </div>
+      <div class="card">
+        <h4>Overdue Tasks</h4>
+        <h2 id="dOverdue">4</h2>
+        <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Need attention</div>
+      </div>
+      <div class="card">
+        <h4>Pending Payments</h4>
+        <h2 id="dPending">₹1,25,000</h2>
+        <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Outstanding balance</div>
+      </div>
+    </section>
+
+    <!-- Quick Navigation Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:28px;">
+      <a href="clients.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.6rem;margin-bottom:6px;">👥</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Clients</div>
+      </a>
+      <a href="projects.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.6rem;margin-bottom:6px;">📁</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Projects</div>
+      </a>
+      <a href="invoices.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.6rem;margin-bottom:6px;">🧾</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Invoices</div>
+      </a>
+      <a href="reports.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.6rem;margin-bottom:6px;">📈</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Reports</div>
+      </a>
+      <a href="team.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.6rem;margin-bottom:6px;">🧑‍💼</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Team</div>
+      </a>
+      <a href="services.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.6rem;margin-bottom:6px;">🛠</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Services</div>
+      </a>
+      <a href="access-roles.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.6rem;margin-bottom:6px;">🔐</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Roles</div>
+      </a>
+      <a href="invoice-create.html" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.25);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.6rem;margin-bottom:6px;">➕</div>
+        <div style="font-size:0.82rem;font-weight:600;color:#fff;">New Invoice</div>
+      </a>
+    </div>
+
+    <!-- Charts Section -->
+    <section class="charts">
+      <div class="chart-box">
+        <h3>Website Projects by Status</h3>
+        <canvas id="projectStatusChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>Revenue Analytics — 2025</h3>
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="activity">
+      <h3>Recent Activity</h3>
+      <ul id="activityFeed">
+        <li>🎨 Homepage design approved by TechVision Pvt Ltd</li>
+        <li>💰 Payment of ₹29,500 received from ShopKart India</li>
+        <li>📋 New task assigned to Arjun — Contact Form Setup</li>
+        <li>🚀 StartupHub Landing Page moved to Live</li>
+        <li>⚠️ Overdue invoice reminder sent to FashionHub</li>
+        <li>👤 New client added — Digital Edge</li>
+      </ul>
+    </section>
+
+    <!-- Urgent Alerts -->
+    <section class="alerts">
+      <h3>Urgent Alerts</h3>
+      <div class="alert danger">⚠️ 2 Projects with delayed delivery — FashionHub, Digital Edge</div>
+      <div class="alert warning">🌐 Hosting expiring in 10 days — TechVision (techvision.in)</div>
+      <div class="alert warning">🔒 SSL certificate expiring — FashionHub (fashionhub.in)</div>
+      <div class="alert danger">🧾 3 Unpaid Invoices totalling ₹94,800</div>
+    </section>
+
+  </main>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="dashboard.js"></script>
+<script>
+// Update date
+document.getElementById('dashDate').textContent = 'Good ' +
+  (new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening') +
+  ' — ' + new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+// Load dynamic stats from Supabase / sample data
+(async () => {
+  try {
+    const [clients, projects, invoices] = await Promise.all([
+      fetchClients(), fetchProjects(), fetchInvoices()
+    ]);
+    const revenue = invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+(i.total_amount||0),0);
+    const pending = invoices.filter(i=>['pending','overdue'].includes(i.status)).reduce((s,i)=>s+(i.total_amount||0),0);
+    const active = projects.filter(p=>!['Live'].includes(p.status)).length;
+
+    document.getElementById('dRevenue').textContent = formatCurrency(revenue) || '₹4,80,000';
+    document.getElementById('dProjects').textContent = active || '18';
+    document.getElementById('dPending').textContent = formatCurrency(pending) || '₹1,25,000';
+  } catch(e) { /* use defaults */ }
+})();
+</script>
+</body>
+</html>
