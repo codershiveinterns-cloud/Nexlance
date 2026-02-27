@@ -8,19 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // =========================================
     // Navbar Scroll Effect
     // =========================================
-    const navbar = document.getElementById('navbar'); 
-    let lastScroll = 0;
-    
+    const navbar = document.getElementById('navbar');
+
     window.addEventListener('scroll', function() {
-        const currentScroll = window.pageYOffset;
-        
-        if (currentScroll > 50) {
+        if (window.pageYOffset > 50) {
             navbar.classList.add('scrolled');
         } else {
             navbar.classList.remove('scrolled');
         }
-        
-        lastScroll = currentScroll;
     });
     
     // =========================================
@@ -65,21 +60,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // =========================================
     const billingToggle = document.getElementById('billing-toggle');
     const priceAmounts = document.querySelectorAll('.amount');
-    
+    const labelMonthly = document.getElementById('label-monthly');
+    const labelAnnual  = document.getElementById('label-annual');
+    const billingNote  = document.getElementById('billing-note');
+
     if (billingToggle) {
         billingToggle.addEventListener('change', function() {
+            const isAnnual = this.checked;
+
+            // Switch price number
             priceAmounts.forEach(amount => {
-                const monthly = amount.dataset.monthly;
-                const annual = amount.dataset.annual;
-                
-                if (this.checked) {
-                    // Annual pricing
-                    amount.textContent = annual;
-                } else {
-                    // Monthly pricing
-                    amount.textContent = monthly;
-                }
+                amount.textContent = isAnnual ? amount.dataset.annual : amount.dataset.monthly;
             });
+
+            // Switch period label /month ↔ /year
+            document.querySelectorAll('.period').forEach(el => {
+                el.textContent = isAnnual ? '/year' : '/month';
+            });
+
+            // Highlight the active label
+            if (labelMonthly && labelAnnual) {
+                labelMonthly.classList.toggle('active-label', !isAnnual);
+                labelAnnual.classList.toggle('active-label',  isAnnual);
+            }
+
+            // Update billing note
+            if (billingNote) {
+                if (isAnnual) {
+                    billingNote.textContent = 'Billed annually — you save 25% compared to monthly';
+                    billingNote.classList.add('annual');
+                } else {
+                    billingNote.textContent = 'Billed monthly — switch to annual and save 25%';
+                    billingNote.classList.remove('annual');
+                }
+            }
         });
     }
     

@@ -10,6 +10,68 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .toggle-label { transition: color .2s, font-weight .2s; color: var(--color-text-light); font-weight: 500; }
+        .active-label { color: var(--color-secondary) !important; font-weight: 700 !important; }
+        .billing-period-note { text-align: center; font-size: var(--font-size-sm); color: var(--color-text-lighter); margin: -.5rem 0 2rem; transition: color .2s; }
+        .billing-period-note.annual { color: #059669; font-weight: 600; }
+
+        /* ---- Video Modal ---- */
+        .video-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .video-modal-overlay.open {
+            display: flex;
+        }
+        .video-modal {
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            aspect-ratio: 16 / 9;
+            animation: modalIn .25s ease;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.93); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+        .video-modal iframe,
+        .video-modal video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        .video-modal-close {
+            position: absolute;
+            top: -44px;
+            right: 0;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .2s;
+        }
+        .video-modal-close:hover { background: rgba(255,255,255,0.3); }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -56,32 +118,40 @@
                     </div>
                 </li>
                 <li class="nav-item has-dropdown">
-                    <a href="#templates">Templates <span class="arrow">▾</span></a>
+                    <a href="templates.html">Templates <span class="arrow">▾</span></a>
                     <div class="dropdown dropdown-templates">
                         <div class="dropdown-grid templates-grid">
-                            <a href="#" class="template-thumb">
-                                <div class="thumb-img" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+                            <a href="templates.html" class="template-thumb">
+                                <div class="thumb-img" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                    <img src="images/f2.webp" alt="Portfolio Template" style="width:100%; height:100%; object-fit:cover;">
+                                </div>
                                 <span>Portfolio</span>
                             </a>
-                            <a href="#" class="template-thumb">
-                                <div class="thumb-img" style="background: linear-gradient(135deg, #f093fb, #f5576c);"></div>
+                            <a href="templates.html" class="template-thumb">
+                                <div class="thumb-img" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                    <img src="images/business.jpg" alt="Business Template" style="width:100%; height:100%; object-fit:cover;">
+                                </div>
                                 <span>Business</span>
                             </a>
-                            <a href="#" class="template-thumb">
-                                <div class="thumb-img" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"></div>
+                            <a href="templates.html" class="template-thumb">
+                                <div class="thumb-img" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                    <img src="images/creative.jpg" slt="blog template" style="width: 100%; height: 100%; object-fit:cover;">
+                                </div>
                                 <span>Blog</span>
                             </a>
-                            <a href="#" class="template-thumb">
-                                <div class="thumb-img" style="background: linear-gradient(135deg, #43e97b, #38f9d7);"></div>
+                            <a href="templates.html" class="template-thumb">
+                                <div class="thumb-img" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                                    <img src="images/store.avif" alt="E-commerce Template" style="width:100%; height:100%; object-fit:cover;">
+                                </div>
                                 <span>Store</span>
                             </a>
                         </div>
-                        <a href="#templates" class="dropdown-view-all">View All Templates →</a>
+                        <a href="templates.html" class="dropdown-view-all">View All Templates →</a>
                     </div>
                 </li>
-                <li class="nav-item"><a href="#pricing">Pricing</a></li>
-                <li class="nav-item"><a href="#features">Features</a></li>
-                <li class="nav-item"><a href="#resources">Resources</a></li>
+                <li class="nav-item"><a href="pricing.html">Pricing</a></li>
+                <li class="nav-item"><a href="features.html">Features</a></li>
+                <li class="nav-item"><a href="help-center.html">Resources</a></li>
             </ul>
             <div class="nav-actions">
                 <a href="login.html" class="btn-text">Log In</a>
@@ -120,12 +190,12 @@
                     No coding required. Just drag, drop, and publish.
                 </p>
                 <div class="hero-cta">
-                    <a href="#" class="btn-primary btn-large">
+                    <a href="login.html" class="btn-primary btn-large">
                         Start Free Trial
                     </a>
-                    <a href="#" class="btn-secondary btn-large">
+                    <button type="button" class="btn-secondary btn-large" id="watchDemoBtn">
                         <span class="play-icon">▶</span> Watch Demo
-                    </a>
+                    </button>
                 </div>
                 <p class="hero-note">No credit card required • Free 14-day trial</p>
             </div>
@@ -219,14 +289,14 @@
                         <span class="feature-icon">✏️</span>
                         <h3>Drag & Drop Editor</h3>
                         <p>Intuitive visual editor that lets you design without writing a single line of code. Move elements freely and see changes in real-time.</p>
-                        <a href="#" class="feature-link">Learn more →</a>
+                        <a href="features.html" class="feature-link">Learn more →</a>
                     </div>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🎨</div>
                     <h3>Professional Templates</h3>
                     <p>200+ award-winning templates designed by world-class designers.</p>
-                    <a href="#" class="feature-link">Browse templates →</a>
+                    <a href="templates.html" class="feature-link">Browse templates →</a>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📱</div>
@@ -251,7 +321,7 @@
                         <span class="feature-icon">📊</span>
                         <h3>Analytics Dashboard</h3>
                         <p>Track visitors, sales, and engagement with detailed analytics. Understand your audience and grow your business with data-driven insights.</p>
-                        <a href="#" class="feature-link">Learn more →</a>
+                        <a href="features.html" class="feature-link">Learn more →</a>
                     </div>
                     <div class="feature-visual">
                         <img src="images/analytics.png" alt="Analytics Dashboard Preview">
@@ -373,7 +443,7 @@
                 </div>
             </div>
             <div class="templates-cta">
-                <a href="#" class="btn-secondary btn-large">Browse All Templates</a>
+                <a href="templates.html" class="btn-secondary btn-large">Browse All Templates</a>
             </div>
         </div>
     </section>
@@ -421,13 +491,14 @@
                 </p>
             </div>
             <div class="pricing-toggle">
-                <span class="toggle-label">Monthly</span>
+                <span class="toggle-label active-label" id="label-monthly">Monthly</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="billing-toggle">
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="toggle-label">Annual <span class="save-badge">Save 25%</span></span>
+                <span class="toggle-label" id="label-annual">Annual <span class="save-badge">Save 25%</span></span>
             </div>
+            <p class="billing-period-note" id="billing-note">Billed monthly — switch to annual and save 25%</p>
             <div class="pricing-grid">
                 <div class="pricing-card">
                     <div class="pricing-header">
@@ -436,7 +507,7 @@
                     </div>
                     <div class="pricing-price">
                         <span class="currency">$</span>
-                        <span class="amount" data-monthly="16" data-annual="12">12</span>
+                        <span class="amount" data-monthly="16" data-annual="144">16</span>
                         <span class="period">/month</span>
                     </div>
                     <ul class="pricing-features">
@@ -447,7 +518,7 @@
                         <li class="disabled"><span class="x">✗</span> E-commerce</li>
                         <li class="disabled"><span class="x">✗</span> Advanced analytics</li>
                     </ul>
-                    <a href="#" class="btn-outline btn-full">Start Free Trial</a>
+                    <a href="login.html" class="btn-outline btn-full">Start Free Trial</a>
                 </div>
                 <div class="pricing-card popular">
                     <div class="popular-badge">Most Popular</div>
@@ -457,7 +528,7 @@
                     </div>
                     <div class="pricing-price">
                         <span class="currency">$</span>
-                        <span class="amount" data-monthly="26" data-annual="23">23</span>
+                        <span class="amount" data-monthly="26" data-annual="276">26</span>
                         <span class="period">/month</span>
                     </div>
                     <ul class="pricing-features">
@@ -468,7 +539,7 @@
                         <li><span class="check">✓</span> Promotional popups</li>
                         <li><span class="check">✓</span> Priority support</li>
                     </ul>
-                    <a href="#" class="btn-primary btn-full">Start Free Trial</a>
+                    <a href="login.html" class="btn-primary btn-full">Start Free Trial</a>
                 </div>
                 <div class="pricing-card">
                     <div class="pricing-header">
@@ -477,7 +548,7 @@
                     </div>
                     <div class="pricing-price">
                         <span class="currency">$</span>
-                        <span class="amount" data-monthly="40" data-annual="30">30</span>
+                        <span class="amount" data-monthly="40" data-annual="360">40</span>
                         <span class="period">/month</span>
                     </div>
                     <ul class="pricing-features">
@@ -488,7 +559,7 @@
                         <li><span class="check">✓</span> Advanced shipping</li>
                         <li><span class="check">✓</span> Customer accounts</li>
                     </ul>
-                    <a href="#" class="btn-outline btn-full">Start Free Trial</a>
+                    <a href="login.html" class="btn-outline btn-full">Start Free Trial</a>
                 </div>
             </div>
         </div>
@@ -557,7 +628,7 @@
             <div class="cta-content">
                 <h2>Ready to build your dream website?</h2>
                 <p>Start your free 14-day trial today. No credit card required.</p>
-                <a href="#" class="btn-primary btn-large">Get Started Free</a>
+                <a href="login.html" class="btn-primary btn-large">Get Started Free</a>
             </div>
         </div>
     </section>
@@ -574,36 +645,34 @@
                     <p>Build beautiful websites without writing a single line of code.</p>
                     <div class="social-links">
                         <a href="#" aria-label="Twitter">𝕏</a>
-                        <a href="#" aria-label="LinkedIn">in</a>
-                        <a href="#" aria-label="Instagram">◉</a>
-                        <a href="#" aria-label="YouTube">▶</a>
+                        <a href="https://www.linkedin.com/in/nexlance-digital-8175293b1" aria-label="LinkedIn">in</a>
                     </div>
                 </div>
                 <div class="footer-links">
                     <h4>Product</h4>
                     <ul>
-                        <li><a href="#">Templates</a></li>
-                        <li><a href="#">Features</a></li>
-                        <li><a href="#">Pricing</a></li>
-                        <li><a href="#">Updates</a></li>
+                        <li><a href="templates.html">Templates</a></li>
+                        <li><a href="features.html">Features</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                        <li><a href="updates.html">Updates</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
                     <h4>Resources</h4>
                     <ul>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Webinars</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Developers</a></li>
+                        <li><a href="help-center.html">Help Center</a></li>
+                        <li><a href="webinars.html">Webinars</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="developers.html">Developers</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
                     <h4>Company</h4>
                     <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="press.html">Press</a></li>
+                        <li><a href="contact.html">Contact</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
@@ -612,7 +681,6 @@
                         <li><a href="privacy.html">Privacy Policy</a></li>
                         <li><a href="terms.html">Terms of Service</a></li>
                         <li><a href="refund.html">Refund Policy</a></li>
-                        <li><a href="#">GDPR</a></li>
                     </ul>
                 </div>
             </div>
@@ -620,9 +688,9 @@
                 <p>&copy; 2026 Nexlance. All rights reserved.</p>
                 <div class="footer-bottom-links">
                     <a href="terms.html">Terms & Services </a>
-                    <a href="#">Sitemap</a>
-                    <a href="#">Status</a>
-                    <a href="#">Security</a>
+                    <a href="sitemap.html">Sitemap</a>
+                    <a href="status.html">Status</a>
+                    <a href="security.html">Security</a>
                 </div>
             </div>
         </div>
@@ -631,6 +699,60 @@
     <!-- Back to Top Button -->
     <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
 
+    <!-- ====== Watch Demo Video Modal ====== -->
+    <div class="video-modal-overlay" id="videoModalOverlay" role="dialog" aria-modal="true" aria-label="Demo video">
+        <div class="video-modal" id="videoModal">
+            <button class="video-modal-close" id="videoModalClose" aria-label="Close video">✕</button>
+            <!-- ↓↓ REPLACE the src below with your YouTube embed, Vimeo embed, or direct video URL ↓↓ -->
+            <iframe
+                id="demoVideoFrame"
+                src=""
+                data-src="images/demo.mp4"  
+                title="Nexlance Demo Video"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+            <!-- If you prefer a self-hosted MP4, remove the iframe above and use this instead:
+            <video controls autoplay>
+                <source src="videos/demo.mp4" type="video/mp4">
+            </video>
+            -->
+        </div>
+    </div>
+
     <script src="main.js"></script>
+    <script>
+        // ---- Video Modal Logic ----
+        const overlay   = document.getElementById('videoModalOverlay');
+        const closeBtn  = document.getElementById('videoModalClose');
+        const frame     = document.getElementById('demoVideoFrame');
+        const openBtn   = document.getElementById('watchDemoBtn');
+
+        function openModal() {
+            // Load video only when modal opens (prevents autoplay on page load)
+            frame.src = frame.dataset.src;
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            overlay.classList.remove('open');
+            frame.src = '';           // stop video playback
+            document.body.style.overflow = '';
+        }
+
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+
+        // Close on backdrop click
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeModal();
+        });
+
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+        });
+    </script>
 </body>
 </html>

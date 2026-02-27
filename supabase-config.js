@@ -218,13 +218,13 @@ async function fetchInvoices() {
     if (error) { console.error(error); return [...sampleInvoices]; } return data;
 }
 async function addInvoice(d) {
-    if (!isSupabaseConfigured) { const r = { ...d, id: 'i' + Date.now() }; sampleInvoices.unshift(r); return r; }
+    if (!isSupabaseConfigured) { const r = { ...d, id: 'i' + Date.now() }; sampleInvoices.unshift(r); _saveSampleInvoices(); return r; }
     const { data, error } = await db.from('invoices').insert([d]).select().single();
     if (error) throw error; return data;
 }
 async function updateInvoiceStatus(id, status, paidDate = null) {
     const upd = { status, ...(paidDate ? { paid_date: paidDate } : {}) };
-    if (!isSupabaseConfigured) { const i = sampleInvoices.findIndex(inv => inv.id === id); if (i > -1) sampleInvoices[i] = { ...sampleInvoices[i], ...upd }; return; }
+    if (!isSupabaseConfigured) { const i = sampleInvoices.findIndex(inv => inv.id === id); if (i > -1) { sampleInvoices[i] = { ...sampleInvoices[i], ...upd }; _saveSampleInvoices(); } return; }
     const { error } = await db.from('invoices').update(upd).eq('id', id);
     if (error) throw error;
 }
@@ -329,13 +329,20 @@ const sampleTasks = [
     { id: '7', project_id: '1', title: 'Mobile responsive testing', description: 'Test across devices', status: 'testing', assignee: 'Rohit', priority: 'high', due_date: '2025-03-05' }
 ];
 
-const sampleInvoices = [
+const _defaultInvoices = [
     { id: '1', invoice_number: 'INV-2025-001', client_id: '1', client_name: 'TechVision Pvt Ltd', project_name: 'TechVision Corporate Website', amount: 25000, gst_percent: 18, total_amount: 29500, due_date: '2025-02-28', status: 'paid', paid_date: '2025-02-20', notes: 'First milestone payment' },
     { id: '2', invoice_number: 'INV-2025-002', client_id: '2', client_name: 'ShopKart India', project_name: 'ShopKart Ecommerce Platform', amount: 45000, gst_percent: 18, total_amount: 53100, due_date: '2025-03-15', status: 'pending', notes: 'Second milestone' },
     { id: '3', invoice_number: 'INV-2025-003', client_id: '4', client_name: 'FashionHub', project_name: 'FashionHub Store Redesign', amount: 20000, gst_percent: 18, total_amount: 23600, due_date: '2025-02-01', status: 'overdue', notes: 'Design phase completion' },
     { id: '4', invoice_number: 'INV-2025-004', client_id: '1', client_name: 'TechVision Pvt Ltd', project_name: 'Monthly Maintenance — Feb', amount: 5000, gst_percent: 18, total_amount: 5900, due_date: '2025-04-01', status: 'recurring', notes: 'Monthly maintenance plan' },
     { id: '5', invoice_number: 'INV-2025-005', client_id: '5', client_name: 'Digital Edge', project_name: 'Digital Edge Business Site', amount: 15000, gst_percent: 18, total_amount: 17700, due_date: '2025-03-30', status: 'pending', notes: 'Initial payment' }
 ];
+function _loadSampleInvoices() {
+    try { const s = localStorage.getItem('nexlance_invoices'); return s ? JSON.parse(s) : [..._defaultInvoices]; } catch(e) { return [..._defaultInvoices]; }
+}
+function _saveSampleInvoices() {
+    try { localStorage.setItem('nexlance_invoices', JSON.stringify(sampleInvoices)); } catch(e) {}
+}
+let sampleInvoices = _loadSampleInvoices();
 
 const sampleServices = [
     { id: '1', name: 'Business Website', icon: '🏢', pricing: 25000, active_clients: 12, revenue_generated: 300000, avg_delivery_days: 30, description: 'Professional business websites with modern design' },

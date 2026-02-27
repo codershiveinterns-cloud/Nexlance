@@ -6,26 +6,35 @@
   <title>Sign in — Nexlance</title>
   <link rel="stylesheet" href="login.css">
 </head>
-<body> 
+<body>
   <div class="auth-page">
     <div class="auth-card">
       <div class="auth-brand">
         <div class="logo">◆ Nexlance</div>
-        <p class="auth-sub">Build beautiful websites & dashboards — sign in to continue.</p>
+        <p class="auth-sub">Build beautiful websites &amp; dashboards — sign in to continue.</p>
       </div>
 
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab" type="button">Sign In</button>
+        <button class="auth-tab" id="registerTab" type="button">Create Account</button>
+      </div>
+
+      <!-- ====== LOGIN FORM ====== -->
       <form id="loginForm" class="form">
         <label>
           Email
-          <input id="email" type="email" placeholder="you@company.com" required>
+          <input id="loginEmail" type="email" placeholder="you@company.com" autocomplete="email">
+          <span class="field-error" id="loginEmailError"></span>
         </label>
 
         <label>
           Password
           <div class="password-row">
-            <input id="password" type="password" placeholder="••••••••" required minlength="8">
-            <button type="button" id="togglePassword" class="small-btn">Show</button>
+            <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+            <button type="button" id="toggleLoginPassword" class="small-btn">Show</button>
           </div>
+          <span class="field-error" id="loginPasswordError"></span>
         </label>
 
         <div class="form-row form-meta">
@@ -36,18 +45,60 @@
         </div>
 
         <div class="form-row">
-          <button id="submitBtn" class="btn-primary btn-block" type="submit">Sign in</button>
+          <button class="btn-primary btn-block" type="submit">Sign In</button>
         </div>
 
-        <div id="formMessage" class="form-message" aria-live="polite"></div>
+        <div id="loginMessage" class="form-message" aria-live="polite"></div>
+      </form>
 
-        <p class="demo-note">Demo account: <strong>demo@nexlance.com</strong> / <strong>demopassword</strong></p>
+      <!-- ====== REGISTER FORM ====== -->
+      <form id="registerForm" class="form" style="display:none;">
+        <label>
+          Full Name
+          <input id="regName" type="text" placeholder="Rahul Sharma" autocomplete="name">
+          <span class="field-error" id="regNameError"></span>
+        </label>
+
+        <label>
+          Email
+          <input id="regEmail" type="email" placeholder="you@company.com" autocomplete="email">
+          <span class="field-error" id="regEmailError"></span>
+        </label>
+
+        <label>
+          Mobile Number
+          <input id="regMobile" type="tel" placeholder="9876543210" maxlength="10" autocomplete="tel">
+          <span class="field-error" id="regMobileError"></span>
+        </label>
+
+        <label>
+          Password
+          <div class="password-row">
+            <input id="regPassword" type="password" placeholder="Min 8 characters" autocomplete="new-password">
+            <button type="button" id="toggleRegPassword" class="small-btn">Show</button>
+          </div>
+          <span class="field-hint">Must contain: uppercase · lowercase · number · special character</span>
+          <span class="field-error" id="regPasswordError"></span>
+        </label>
+
+        <label>
+          Confirm Password
+          <div class="password-row">
+            <input id="regConfirm" type="password" placeholder="Re-enter password" autocomplete="new-password">
+            <button type="button" id="toggleRegConfirm" class="small-btn">Show</button>
+          </div>
+          <span class="field-error" id="regConfirmError"></span>
+        </label>
+
+        <div class="form-row">
+          <button class="btn-primary btn-block" type="submit">Create Account</button>
+        </div>
+
+        <div id="registerMessage" class="form-message" aria-live="polite"></div>
       </form>
     </div>
 
     <aside class="auth-art">
-      <!-- Put the dashboard image you uploaded here -->
-      <!-- Save your uploaded dash.jpg into images/dash.jpg -->
       <img src="images/dash.jpeg" alt="Dashboard preview" loading="lazy">
       <div class="auth-art-caption">Live analytics, quick insights, and powerful control — all in one place.</div>
     </aside>
