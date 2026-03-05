@@ -369,3 +369,37 @@ body {
     line-height: 1.45;
     font-weight: 400;
 }
+
+/* ---- Forgot Password link ---- */
+.link-forgot {
+    font-size: 0.82rem;
+    color: #6c5ce7;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s, text-decoration 0.2s;
+}
+.link-forgot:hover {
+    color: #4b3fbf;
+    text-decoration: underline;
+}
+
+/* ---- Forgot password description text ---- */
+.forgot-desc {
+    font-size: 0.88rem;
+    color: #777;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ---- Forgot email input (inherits form styles via inline, but this targets focus) ---- */
+#forgotEmail:focus {
+    border-color: #6c5ce7 !important;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12) !important;
+    background: #ffffff !important;
+}
+#forgotEmail.input-error {
+    border-color: #d63031 !important;
+    box-shadow: 0 0 0 3px rgba(214, 48, 49, 0.1) !important;
+    background: #fff8f8 !important;
+}

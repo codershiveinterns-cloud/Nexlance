@@ -11,11 +11,11 @@
     <div class="auth-card">
       <div class="auth-brand">
         <div class="logo">◆ Nexlance</div>
-        <p class="auth-sub">Build beautiful websites &amp; dashboards — sign in to continue.</p>
+        <p class="auth-sub" id="authSubText">Build beautiful websites &amp; dashboards — sign in to continue.</p>
       </div>
 
-      <!-- Tabs -->
-      <div class="auth-tabs">
+      <!-- Tabs (hidden during forgot-password view) -->
+      <div class="auth-tabs" id="authTabs">
         <button class="auth-tab active" id="loginTab" type="button">Sign In</button>
         <button class="auth-tab" id="registerTab" type="button">Create Account</button>
       </div>
@@ -41,11 +41,11 @@
           <label class="small">
             <input id="remember" type="checkbox"> Remember me
           </label>
-          <a href="terms.html" class="link-muted">Terms</a>
+          <a href="#" class="link-muted link-forgot" id="forgotLink">Forgot Password?</a>
         </div>
 
         <div class="form-row">
-          <button class="btn-primary btn-block" type="submit">Sign In</button>
+          <button class="btn-primary btn-block" id="loginBtn" type="submit">Sign In</button>
         </div>
 
         <div id="loginMessage" class="form-message" aria-live="polite"></div>
@@ -91,11 +91,40 @@
         </label>
 
         <div class="form-row">
-          <button class="btn-primary btn-block" type="submit">Create Account</button>
+          <button class="btn-primary btn-block" id="registerBtn" type="submit">Create Account</button>
         </div>
 
         <div id="registerMessage" class="form-message" aria-live="polite"></div>
       </form>
+
+      <!-- ====== FORGOT PASSWORD SECTION ====== -->
+      <div id="forgotSection" style="display:none;">
+        <p class="forgot-desc">
+          Enter your registered email address. We'll send you a secure link to reset your password.
+        </p>
+
+        <div class="form" style="gap:16px;">
+          <label style="display:flex;flex-direction:column;gap:7px;font-size:.85rem;font-weight:600;color:#555;">
+            Email Address
+            <input id="forgotEmail" type="email" placeholder="you@company.com" autocomplete="email"
+              style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #e0d6ff;background:#faf9ff;font-size:.9rem;color:#333;outline:none;transition:border-color .2s,box-shadow .2s;font-family:'Segoe UI',sans-serif;">
+            <span class="field-error" id="forgotEmailError"></span>
+          </label>
+
+          <button class="btn-primary btn-block" type="button" id="sendResetBtn">
+            Send Reset Link
+          </button>
+
+          <div id="forgotMessage" class="form-message" aria-live="polite"></div>
+
+          <div style="text-align:center;">
+            <a href="#" class="link-muted" id="backToLoginLink" style="font-size:.85rem;">
+              ← Back to Sign In
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <aside class="auth-art">
@@ -104,6 +133,13 @@
     </aside>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <!-- App config (sets up `auth` + `db` clients) -->
+  <script src="supabase-config.js"></script>
+  <!-- Auth logic -->
   <script src="auth.js"></script>
 </body>
 </html>

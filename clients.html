@@ -6,7 +6,10 @@
 <title>Clients — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -31,7 +34,7 @@
   <main class="main">
     <div class="topbar">
       <input type="text" id="globalSearch" placeholder="Search clients, projects, invoices...">
-      <div class="profile">Admin</div>
+      <div class="profile"><a href="admin.html" style="color:inherit;text-decoration:none;">⚙️ Admin</a></div>
     </div>
 
     <!-- Page Header -->
@@ -347,6 +350,11 @@ function closeModal() { document.getElementById('clientModal').classList.remove(
 async function saveClient() {
   const name = document.getElementById('fName').value.trim();
   if (!name) { showToast('Client name is required', 'error'); return; }
+  const he = document.getElementById('fHostingExpiry').value;
+  const se = document.getElementById('fSslExpiry').value;
+  if (he && !isValidDate(he)) { markDateError('fHostingExpiry', 'Invalid hosting expiry date'); showToast('Enter a valid hosting expiry date', 'error'); return; }
+  if (se && !isValidDate(se)) { markDateError('fSslExpiry', 'Invalid SSL expiry date'); showToast('Enter a valid SSL expiry date', 'error'); return; }
+  clearDateError('fHostingExpiry'); clearDateError('fSslExpiry');
   const data = {
     name, email: document.getElementById('fEmail').value.trim(),
     phone: document.getElementById('fPhone').value.trim(),
@@ -355,8 +363,8 @@ async function saveClient() {
     hosting_provider: document.getElementById('fHostingProvider').value.trim(),
     project_type: document.getElementById('fProjectType').value,
     platform: document.getElementById('fPlatform').value,
-    hosting_expiry: document.getElementById('fHostingExpiry').value || null,
-    ssl_expiry: document.getElementById('fSslExpiry').value || null,
+    hosting_expiry: he || null,
+    ssl_expiry: se || null,
     maintenance_plan: document.getElementById('fMaintenance').value,
     plan_type: document.getElementById('fPlanType').value,
     total_contract_value: Number(document.getElementById('fContractValue').value) || 0,
@@ -392,6 +400,8 @@ document.getElementById('clientModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
+attachDateValidation('fHostingExpiry', { label: 'Hosting Expiry' });
+attachDateValidation('fSslExpiry',     { label: 'SSL Expiry' });
 init();
 </script>
 </body>

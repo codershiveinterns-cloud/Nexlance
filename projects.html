@@ -6,7 +6,10 @@
 <title>Projects — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -29,7 +32,7 @@
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search projects...">
-      <div class="profile">Admin</div>
+      <div class="profile"><a href="admin.html" style="color:inherit;text-decoration:none;">⚙️ Admin</a></div>
     </div>
 
     <div class="page-header">
@@ -225,12 +228,18 @@ function closeModal() { document.getElementById('projectModal').classList.remove
 async function saveProject() {
   const name = document.getElementById('fName').value.trim();
   if (!name) { showToast('Project name is required', 'error'); return; }
+  const start    = document.getElementById('fStart').value;
+  const deadline = document.getElementById('fDeadline').value;
+  if (start && !isValidDate(start))    { markDateError('fStart', 'Invalid start date'); showToast('Enter a valid start date', 'error'); return; }
+  if (deadline && !isValidDate(deadline)) { markDateError('fDeadline', 'Invalid deadline'); showToast('Enter a valid deadline', 'error'); return; }
+  if (start && deadline && !isDateSameOrAfter(start, deadline)) { markDateError('fDeadline', 'Deadline must be on or after start date'); showToast('Deadline must be on or after the start date', 'error'); return; }
+  clearDateError('fStart'); clearDateError('fDeadline');
   const data = {
     name,
     client_name: document.getElementById('fClientName').value.trim(),
     status: document.getElementById('fStatus').value,
-    start_date: document.getElementById('fStart').value || null,
-    deadline: document.getElementById('fDeadline').value || null,
+    start_date: start || null,
+    deadline: deadline || null,
     assigned_team: document.getElementById('fTeam').value.trim(),
     progress: Number(document.getElementById('fProgress').value) || 0,
     scope_of_work: document.getElementById('fScope').value.trim(),
@@ -262,6 +271,8 @@ async function handleDelete(id) {
 }
 
 document.getElementById('projectModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+attachDateValidation('fStart',    { label: 'Start Date' });
+attachDateValidation('fDeadline', { label: 'Deadline' });
 init();
 </script>
 </body>

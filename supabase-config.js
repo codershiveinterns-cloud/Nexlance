@@ -1,285 +1,239 @@
 /* ============================================================
-   SUPABASE CONFIG — Nexlance Agency Platform
+   FIREBASE CONFIG — Nexlance Agency Platform
    ============================================================
    SETUP INSTRUCTIONS:
-   1. Go to https://supabase.com and create a free project
-   2. In your Supabase project → Settings → API
-   3. Copy your Project URL and anon/public key below
-   4. Run the SQL schema at the bottom in your SQL Editor
+   1. Go to https://console.firebase.google.com and create a free project
+   2. Click "Add app" → choose Web (</>)
+   3. Register app and copy the firebaseConfig object below
+   4. In Firebase Console:
+      → Authentication → Sign-in method → enable "Email/Password"
+      → Firestore Database → Create database (start in test mode for dev)
+      → Authentication → Templates → Password reset → Customize action URL
+         → set to:  https://your-domain.com/reset-password.html
    ============================================================ */
 
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key-here';
+const firebaseConfig = {
+    apiKey:            "AIzaSyCv56CN--eQLTCxomNItL2FgLRoIbdsdoM",
+    authDomain:        "nexlance-df59e.firebaseapp.com",
+    projectId:         "nexlance-df59e",
+    storageBucket:     "nexlance-df59e.firebasestorage.app",
+    messagingSenderId: "480679982312",
+    appId:             "1:480679982312:web:2eb0d840f03c81db49055d",
+    measurementId:     "G-0XG3807L8Q"
+};
 
-// Initialize Supabase client safely (handles offline / CDN load failure)
-let db = null;
+/* ── Initialize Firebase ── */
+let auth = null;
+let db   = null;
+
 try {
-    if (typeof supabase !== 'undefined') {
-        db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        db   = firebase.firestore();
     }
-} catch(e) {
-    console.log('Supabase init failed, using sample data:', e.message);
+} catch (e) {
+    console.log('Firebase init failed, using sample data:', e.message);
 }
 
-// Supabase is usable only when CDN loaded AND real credentials are set
-const isSupabaseConfigured = db !== null && !SUPABASE_URL.includes('your-project');
+/* Firebase is usable only when SDK loaded AND real credentials are set */
+const isFirebaseConfigured = db !== null && !firebaseConfig.apiKey.includes('YOUR_');
+/* Backward-compat alias used by dashboard pages */
+const isSupabaseConfigured = isFirebaseConfigured;
 
 /* ============================================================
-   DATABASE SCHEMA — paste into Supabase SQL Editor
-   ============================================================
+   FIRESTORE SCHEMA — create these collections in Firebase Console
+   (or they are created automatically on first write in test mode)
 
-CREATE TABLE clients (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT,
-  phone TEXT,
-  company TEXT,
-  domain_name TEXT,
-  hosting_provider TEXT,
-  project_type TEXT,
-  platform TEXT,
-  hosting_expiry DATE,
-  ssl_expiry DATE,
-  maintenance_plan TEXT DEFAULT 'None',
-  total_contract_value NUMERIC DEFAULT 0,
-  paid_amount NUMERIC DEFAULT 0,
-  plan_type TEXT DEFAULT 'Basic',
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+   Collections:
+     clients       — client records
+     projects      — project records
+     tasks         — task records (grouped per project)
+     invoices      — invoice records
+     services      — service catalogue
+     team_members  — team roster
+     activity_log  — audit trail
 
-CREATE TABLE projects (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
-  client_name TEXT,
-  start_date DATE,
-  deadline DATE,
-  status TEXT DEFAULT 'Planning',
-  scope_of_work TEXT,
-  deliverables TEXT,
-  assigned_team TEXT,
-  progress INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+   Firestore Security Rules (paste in Firebase Console → Firestore → Rules):
 
-CREATE TABLE tasks (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  description TEXT,
-  status TEXT DEFAULT 'todo',
-  assignee TEXT,
-  priority TEXT DEFAULT 'medium',
-  due_date DATE,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /{document=**} {
+         allow read, write: if request.auth != null;
+       }
+     }
+   }
+   ============================================================ */
 
-CREATE TABLE invoices (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  invoice_number TEXT,
-  client_id UUID REFERENCES clients(id),
-  client_name TEXT,
-  project_id UUID REFERENCES projects(id),
-  project_name TEXT,
-  amount NUMERIC NOT NULL DEFAULT 0,
-  gst_percent NUMERIC DEFAULT 18,
-  total_amount NUMERIC DEFAULT 0,
-  payment_link TEXT,
-  due_date DATE,
-  paid_date DATE,
-  status TEXT DEFAULT 'pending',
-  notes TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE services (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  icon TEXT DEFAULT '🌐',
-  pricing NUMERIC DEFAULT 0,
-  active_clients INTEGER DEFAULT 0,
-  revenue_generated NUMERIC DEFAULT 0,
-  avg_delivery_days INTEGER DEFAULT 0,
-  description TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE team_members (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  role TEXT DEFAULT 'Developer',
-  can_edit_tasks BOOLEAN DEFAULT false,
-  can_see_revenue BOOLEAN DEFAULT false,
-  can_create_invoices BOOLEAN DEFAULT false,
-  can_upload_files BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE activity_log (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  description TEXT NOT NULL,
-  user_name TEXT DEFAULT 'Admin',
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Enable RLS (recommended for production)
-ALTER TABLE clients       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE projects      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE tasks         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE invoices      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE services      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE team_members  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE activity_log  ENABLE ROW LEVEL SECURITY;
-*/
+/* ============================================================
+   HELPER — convert Firestore snapshot to plain object array
+   ============================================================ */
+function _snap(querySnap) {
+    return querySnap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
 
 /* ============================================================
    HELPER FUNCTIONS — Clients
    ============================================================ */
 async function fetchClients() {
-    if (!isSupabaseConfigured) return [...sampleClients];
-    const { data, error } = await db.from('clients').select('*').order('created_at', { ascending: false });
-    if (error) { console.error(error); return [...sampleClients]; }
-    return data;
+    if (!isFirebaseConfigured) return [...sampleClients];
+    try {
+        const snap = await db.collection('clients').orderBy('created_at', 'desc').get();
+        return _snap(snap);
+    } catch (e) { console.error(e); return [...sampleClients]; }
 }
 async function addClient(d) {
-    if (!isSupabaseConfigured) { const r = { ...d, id: 'c' + Date.now() }; sampleClients.unshift(r); return r; }
-    const { data, error } = await db.from('clients').insert([d]).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const r = { ...d, id: 'c' + Date.now() }; sampleClients.unshift(r); return r; }
+    const doc = { ...d, created_at: new Date().toISOString() };
+    const ref = await db.collection('clients').add(doc);
+    return { id: ref.id, ...doc };
 }
 async function updateClient(id, d) {
-    if (!isSupabaseConfigured) { const i = sampleClients.findIndex(c => c.id === id); if (i > -1) sampleClients[i] = { ...sampleClients[i], ...d }; return sampleClients[i]; }
-    const { data, error } = await db.from('clients').update(d).eq('id', id).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const i = sampleClients.findIndex(c => c.id === id); if (i > -1) sampleClients[i] = { ...sampleClients[i], ...d }; return sampleClients[i]; }
+    await db.collection('clients').doc(id).update(d);
+    return { id, ...d };
 }
 async function deleteClient(id) {
-    if (!isSupabaseConfigured) { const i = sampleClients.findIndex(c => c.id === id); if (i > -1) sampleClients.splice(i, 1); return; }
-    const { error } = await db.from('clients').delete().eq('id', id);
-    if (error) throw error;
+    if (!isFirebaseConfigured) { const i = sampleClients.findIndex(c => c.id === id); if (i > -1) sampleClients.splice(i, 1); return; }
+    await db.collection('clients').doc(id).delete();
 }
 
 /* ============================================================
    HELPER FUNCTIONS — Projects
    ============================================================ */
 async function fetchProjects(clientId = null) {
-    if (!isSupabaseConfigured) return clientId ? sampleProjects.filter(p => p.client_id === clientId) : [...sampleProjects];
-    let q = db.from('projects').select('*').order('created_at', { ascending: false });
-    if (clientId) q = q.eq('client_id', clientId);
-    const { data, error } = await q;
-    if (error) { console.error(error); return [...sampleProjects]; }
-    return data;
+    if (!isFirebaseConfigured) return clientId ? sampleProjects.filter(p => p.client_id === clientId) : [...sampleProjects];
+    try {
+        let q = db.collection('projects').orderBy('created_at', 'desc');
+        if (clientId) q = q.where('client_id', '==', clientId);
+        const snap = await q.get();
+        return _snap(snap);
+    } catch (e) { console.error(e); return [...sampleProjects]; }
 }
 async function addProject(d) {
-    if (!isSupabaseConfigured) { const r = { ...d, id: 'p' + Date.now() }; sampleProjects.unshift(r); return r; }
-    const { data, error } = await db.from('projects').insert([d]).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const r = { ...d, id: 'p' + Date.now() }; sampleProjects.unshift(r); return r; }
+    const doc = { ...d, created_at: new Date().toISOString() };
+    const ref = await db.collection('projects').add(doc);
+    return { id: ref.id, ...doc };
 }
 async function updateProject(id, d) {
-    if (!isSupabaseConfigured) { const i = sampleProjects.findIndex(p => p.id === id); if (i > -1) sampleProjects[i] = { ...sampleProjects[i], ...d }; return sampleProjects[i]; }
-    const { data, error } = await db.from('projects').update(d).eq('id', id).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const i = sampleProjects.findIndex(p => p.id === id); if (i > -1) sampleProjects[i] = { ...sampleProjects[i], ...d }; return sampleProjects[i]; }
+    await db.collection('projects').doc(id).update(d);
+    return { id, ...d };
 }
 async function deleteProject(id) {
-    if (!isSupabaseConfigured) { const i = sampleProjects.findIndex(p => p.id === id); if (i > -1) sampleProjects.splice(i, 1); return; }
-    const { error } = await db.from('projects').delete().eq('id', id);
-    if (error) throw error;
+    if (!isFirebaseConfigured) { const i = sampleProjects.findIndex(p => p.id === id); if (i > -1) sampleProjects.splice(i, 1); return; }
+    await db.collection('projects').doc(id).delete();
 }
 
 /* ============================================================
    HELPER FUNCTIONS — Tasks
    ============================================================ */
 async function fetchTasks(projectId) {
-    if (!isSupabaseConfigured) return sampleTasks.filter(t => t.project_id === projectId);
-    const { data, error } = await db.from('tasks').select('*').eq('project_id', projectId).order('created_at');
-    if (error) { console.error(error); return []; } return data;
+    if (!isFirebaseConfigured) return sampleTasks.filter(t => t.project_id === projectId);
+    try {
+        const snap = await db.collection('tasks').where('project_id', '==', projectId).orderBy('created_at').get();
+        return _snap(snap);
+    } catch (e) { console.error(e); return []; }
 }
 async function addTask(d) {
-    if (!isSupabaseConfigured) { const r = { ...d, id: 't' + Date.now() }; sampleTasks.push(r); return r; }
-    const { data, error } = await db.from('tasks').insert([d]).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const r = { ...d, id: 't' + Date.now() }; sampleTasks.push(r); return r; }
+    const doc = { ...d, created_at: new Date().toISOString() };
+    const ref = await db.collection('tasks').add(doc);
+    return { id: ref.id, ...doc };
 }
 async function updateTask(id, d) {
-    if (!isSupabaseConfigured) { const i = sampleTasks.findIndex(t => t.id === id); if (i > -1) sampleTasks[i] = { ...sampleTasks[i], ...d }; return sampleTasks[i]; }
-    const { data, error } = await db.from('tasks').update(d).eq('id', id).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const i = sampleTasks.findIndex(t => t.id === id); if (i > -1) sampleTasks[i] = { ...sampleTasks[i], ...d }; return sampleTasks[i]; }
+    await db.collection('tasks').doc(id).update(d);
+    return { id, ...d };
 }
 async function deleteTask(id) {
-    if (!isSupabaseConfigured) { const i = sampleTasks.findIndex(t => t.id === id); if (i > -1) sampleTasks.splice(i, 1); return; }
-    const { error } = await db.from('tasks').delete().eq('id', id);
-    if (error) throw error;
+    if (!isFirebaseConfigured) { const i = sampleTasks.findIndex(t => t.id === id); if (i > -1) sampleTasks.splice(i, 1); return; }
+    await db.collection('tasks').doc(id).delete();
 }
 
 /* ============================================================
    HELPER FUNCTIONS — Invoices
    ============================================================ */
 async function fetchInvoices() {
-    if (!isSupabaseConfigured) return [...sampleInvoices];
-    const { data, error } = await db.from('invoices').select('*').order('created_at', { ascending: false });
-    if (error) { console.error(error); return [...sampleInvoices]; } return data;
+    if (!isFirebaseConfigured) return [...sampleInvoices];
+    try {
+        const snap = await db.collection('invoices').orderBy('created_at', 'desc').get();
+        return _snap(snap);
+    } catch (e) { console.error(e); return [...sampleInvoices]; }
 }
 async function addInvoice(d) {
-    if (!isSupabaseConfigured) { const r = { ...d, id: 'i' + Date.now() }; sampleInvoices.unshift(r); _saveSampleInvoices(); return r; }
-    const { data, error } = await db.from('invoices').insert([d]).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const r = { ...d, id: 'i' + Date.now() }; sampleInvoices.unshift(r); _saveSampleInvoices(); return r; }
+    const doc = { ...d, created_at: new Date().toISOString() };
+    const ref = await db.collection('invoices').add(doc);
+    return { id: ref.id, ...doc };
 }
 async function updateInvoiceStatus(id, status, paidDate = null) {
     const upd = { status, ...(paidDate ? { paid_date: paidDate } : {}) };
-    if (!isSupabaseConfigured) { const i = sampleInvoices.findIndex(inv => inv.id === id); if (i > -1) { sampleInvoices[i] = { ...sampleInvoices[i], ...upd }; _saveSampleInvoices(); } return; }
-    const { error } = await db.from('invoices').update(upd).eq('id', id);
-    if (error) throw error;
+    if (!isFirebaseConfigured) { const i = sampleInvoices.findIndex(inv => inv.id === id); if (i > -1) { sampleInvoices[i] = { ...sampleInvoices[i], ...upd }; _saveSampleInvoices(); } return; }
+    await db.collection('invoices').doc(id).update(upd);
 }
 
 /* ============================================================
    HELPER FUNCTIONS — Services
    ============================================================ */
 async function fetchServices() {
-    if (!isSupabaseConfigured) return [...sampleServices];
-    const { data, error } = await db.from('services').select('*');
-    if (error) { console.error(error); return [...sampleServices]; } return data;
+    if (!isFirebaseConfigured) return [...sampleServices];
+    try {
+        const snap = await db.collection('services').get();
+        return _snap(snap);
+    } catch (e) { console.error(e); return [...sampleServices]; }
 }
 async function addService(d) {
-    if (!isSupabaseConfigured) { const r = { ...d, id: 's' + Date.now() }; sampleServices.push(r); return r; }
-    const { data, error } = await db.from('services').insert([d]).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const r = { ...d, id: 's' + Date.now() }; sampleServices.push(r); return r; }
+    const doc = { ...d, created_at: new Date().toISOString() };
+    const ref = await db.collection('services').add(doc);
+    return { id: ref.id, ...doc };
 }
 async function updateService(id, d) {
-    if (!isSupabaseConfigured) { const i = sampleServices.findIndex(s => s.id === id); if (i > -1) sampleServices[i] = { ...sampleServices[i], ...d }; return sampleServices[i]; }
-    const { data, error } = await db.from('services').update(d).eq('id', id).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const i = sampleServices.findIndex(s => s.id === id); if (i > -1) sampleServices[i] = { ...sampleServices[i], ...d }; return sampleServices[i]; }
+    await db.collection('services').doc(id).update(d);
+    return { id, ...d };
 }
 async function deleteService(id) {
-    if (!isSupabaseConfigured) { const i = sampleServices.findIndex(s => s.id === id); if (i > -1) sampleServices.splice(i, 1); return; }
-    const { error } = await db.from('services').delete().eq('id', id);
-    if (error) throw error;
+    if (!isFirebaseConfigured) { const i = sampleServices.findIndex(s => s.id === id); if (i > -1) sampleServices.splice(i, 1); return; }
+    await db.collection('services').doc(id).delete();
 }
 
 /* ============================================================
    HELPER FUNCTIONS — Team
    ============================================================ */
 async function fetchTeamMembers() {
-    if (!isSupabaseConfigured) return [...sampleTeamMembers];
-    const { data, error } = await db.from('team_members').select('*');
-    if (error) { console.error(error); return [...sampleTeamMembers]; } return data;
+    if (!isFirebaseConfigured) return [...sampleTeamMembers];
+    try {
+        const snap = await db.collection('team_members').get();
+        return _snap(snap);
+    } catch (e) { console.error(e); return [...sampleTeamMembers]; }
 }
 async function addTeamMember(d) {
-    if (!isSupabaseConfigured) { const r = { ...d, id: 'm' + Date.now() }; sampleTeamMembers.push(r); return r; }
-    const { data, error } = await db.from('team_members').insert([d]).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const r = { ...d, id: 'm' + Date.now() }; sampleTeamMembers.push(r); return r; }
+    const doc = { ...d, created_at: new Date().toISOString() };
+    const ref = await db.collection('team_members').add(doc);
+    return { id: ref.id, ...doc };
 }
 async function updateTeamMember(id, d) {
-    if (!isSupabaseConfigured) { const i = sampleTeamMembers.findIndex(m => m.id === id); if (i > -1) sampleTeamMembers[i] = { ...sampleTeamMembers[i], ...d }; return sampleTeamMembers[i]; }
-    const { data, error } = await db.from('team_members').update(d).eq('id', id).select().single();
-    if (error) throw error; return data;
+    if (!isFirebaseConfigured) { const i = sampleTeamMembers.findIndex(m => m.id === id); if (i > -1) sampleTeamMembers[i] = { ...sampleTeamMembers[i], ...d }; return sampleTeamMembers[i]; }
+    await db.collection('team_members').doc(id).update(d);
+    return { id, ...d };
 }
 async function deleteTeamMember(id) {
-    if (!isSupabaseConfigured) { const i = sampleTeamMembers.findIndex(m => m.id === id); if (i > -1) sampleTeamMembers.splice(i, 1); return; }
-    const { error } = await db.from('team_members').delete().eq('id', id);
-    if (error) throw error;
+    if (!isFirebaseConfigured) { const i = sampleTeamMembers.findIndex(m => m.id === id); if (i > -1) sampleTeamMembers.splice(i, 1); return; }
+    await db.collection('team_members').doc(id).delete();
 }
 
 async function logActivity(description, userName = 'Admin') {
-    if (!isSupabaseConfigured) return;
-    await db.from('activity_log').insert([{ description, user_name: userName }]);
+    if (!isFirebaseConfigured) return;
+    await db.collection('activity_log').add({
+        description,
+        user_name: userName,
+        created_at: new Date().toISOString()
+    });
 }
 
 /* ============================================================
@@ -288,6 +242,51 @@ async function logActivity(description, userName = 'Admin') {
 function formatCurrency(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
 function formatDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
 function getInitials(name) { return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2); }
+
+/* ---- Date Validation ---- */
+function isValidDate(str) {
+    if (!str || typeof str !== 'string') return false;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return false;
+    return d.toISOString().slice(0, 10) === str;
+}
+function isDateAfter(strA, strB) {
+    if (!isValidDate(strA) || !isValidDate(strB)) return false;
+    return new Date(strB) > new Date(strA);
+}
+function isDateSameOrAfter(strA, strB) {
+    if (!isValidDate(strA) || !isValidDate(strB)) return false;
+    return new Date(strB) >= new Date(strA);
+}
+function todayISO() {
+    return new Date().toISOString().slice(0, 10);
+}
+function markDateError(inputId, msg) {
+    const el = document.getElementById(inputId);
+    if (!el) return;
+    el.style.borderColor = '#d63031';
+    el.style.boxShadow  = '0 0 0 3px rgba(214,48,49,0.12)';
+    el.title = msg;
+}
+function clearDateError(inputId) {
+    const el = document.getElementById(inputId);
+    if (!el) return;
+    el.style.borderColor = '';
+    el.style.boxShadow  = '';
+    el.title = '';
+}
+function attachDateValidation(inputId, { required = false, minToday = false, label = 'Date' } = {}) {
+    const el = document.getElementById(inputId);
+    if (!el) return;
+    el.addEventListener('change', function () {
+        const v = this.value;
+        if (!v && required) { markDateError(inputId, label + ' is required'); return; }
+        if (v && !isValidDate(v)) { markDateError(inputId, label + ': invalid date'); return; }
+        if (v && minToday && v < todayISO()) { markDateError(inputId, label + ' must be today or a future date'); return; }
+        clearDateError(inputId);
+    });
+}
 
 function showToast(msg, type = 'info') {
     let container = document.querySelector('.toast-container');
@@ -301,7 +300,7 @@ function showToast(msg, type = 'info') {
 }
 
 /* ============================================================
-   SAMPLE DATA
+   SAMPLE DATA (used when Firebase is not yet configured)
    ============================================================ */
 const sampleClients = [
     { id: '1', name: 'Rahul Sharma', email: 'rahul@techvision.in', phone: '+91 98765 43210', company: 'TechVision Pvt Ltd', domain_name: 'techvision.in', hosting_provider: 'Hostinger', project_type: 'Business Website', platform: 'WordPress', hosting_expiry: '2025-08-15', ssl_expiry: '2025-08-15', maintenance_plan: 'Monthly', total_contract_value: 45000, paid_amount: 35000, plan_type: 'Premium' },
