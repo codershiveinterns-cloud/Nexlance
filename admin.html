@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Nexlance</title>
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="app.css">
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+.admin-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; margin-bottom:28px; }
+.admin-stat { background:#fff; border-radius:14px; padding:20px; border:1px solid #f0ecff; }
+.admin-stat h4 { font-size:0.78rem; color:#aaa; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+.admin-stat h2 { font-size:1.6rem; font-weight:800; color:#333; }
+.admin-stat .sub { font-size:0.78rem; color:#aaa; margin-top:4px; }
+
+.admin-section { background:#fff; border-radius:14px; border:1px solid #f0ecff; overflow:hidden; margin-bottom:24px; }
+.admin-section-header { padding:16px 20px; border-bottom:1px solid #f0ecff; display:flex; justify-content:space-between; align-items:center; }
+.admin-section-header h3 { font-size:0.95rem; color:#4b3fbf; font-weight:700; }
+.admin-section-body { padding:20px; }
+
+.user-row { display:grid; grid-template-columns:1fr 1fr auto auto; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid #f8f5ff; font-size:0.875rem; }
+.user-row:last-child { border-bottom:none; }
+.user-avatar { width:32px; height:32px; background:linear-gradient(135deg,#6c5ce7,#a29bfe); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:0.75rem; }
+
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.info-item { background:#f8f5ff; border-radius:10px; padding:12px 16px; }
+.info-item .label { font-size:0.75rem; color:#aaa; text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+.info-item .value { font-size:0.9rem; font-weight:600; color:#333; }
+
+.danger-zone { border:1.5px solid #ffe0e0; border-radius:14px; padding:20px; }
+.danger-zone h3 { color:#d63031; margin-bottom:14px; font-size:0.95rem; }
+.danger-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #fff0f0; font-size:0.875rem; color:#555; }
+.danger-row:last-child { border-bottom:none; }
+.btn-danger { background:#d63031; color:#fff; border:none; border-radius:8px; padding:7px 16px; font-size:0.8rem; font-weight:600; cursor:pointer; transition:background .2s; }
+.btn-danger:hover { background:#c0392b; }
+
+.activity-row { padding:10px 0; border-bottom:1px solid #f8f5ff; font-size:0.875rem; color:#555; display:flex; gap:10px; align-items:flex-start; }
+.activity-row:last-child { border-bottom:none; }
+.activity-time { font-size:0.75rem; color:#aaa; white-space:nowrap; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <aside class="sidebar">
+    <h2 class="logo">Nexlance</h2>
+    <ul class="nav">
+      <li><a href="dashboard.html">📊 Dashboard</a></li>
+      <li><a href="clients.html">👥 Clients</a></li>
+      <li><a href="team.html">🧑‍💼 Team</a></li>
+      <li><a href="projects.html">📁 Projects</a></li>
+      <li><a href="invoices.html">🧾 Invoices</a></li>
+      <li><a href="services.html">🛠 Services</a></li>
+      <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <li class="active"><a href="admin.html">⚙️ Admin</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <input type="text" placeholder="Search...">
+      <div class="profile"><a href="admin.html" style="color:inherit;text-decoration:none;">⚙️ Admin</a></div>
+    </div>
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1>Admin Panel</h1>
+        <p>System settings, user management &amp; platform control</p>
+      </div>
+    </div>
+
+    <!-- System Stats -->
+    <div class="admin-grid" id="adminStats">
+      <div class="admin-stat">
+        <h4>Registered Users</h4>
+        <h2 id="statUsers">—</h2>
+        <div class="sub">Local accounts</div>
+      </div>
+      <div class="admin-stat">
+        <h4>Team Members</h4>
+        <h2 id="statTeam">—</h2>
+        <div class="sub">Active in dashboard</div>
+      </div>
+      <div class="admin-stat">
+        <h4>Pending Invites</h4>
+        <h2 id="statInvites">—</h2>
+        <div class="sub">Awaiting confirmation</div>
+      </div>
+      <div class="admin-stat">
+        <h4>Platform Version</h4>
+        <h2>v1.0</h2>
+        <div class="sub">Nexlance Agency Suite</div>
+      </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <h3>⚙️ System Information</h3>
+      </div>
+      <div class="admin-section-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="label">Platform</div>
+            <div class="value">Nexlance Agency Suite</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Version</div>
+            <div class="value">v1.0.0</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Database</div>
+            <div class="value" id="dbStatus">Checking...</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Storage</div>
+            <div class="value" id="storageInfo">—</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Current Admin</div>
+            <div class="value" id="currentAdmin">—</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Last Login</div>
+            <div class="value" id="lastLogin">—</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Browser</div>
+            <div class="value" id="browserInfo">—</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Page Loaded</div>
+            <div class="value" id="pageLoaded">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registered Users -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <h3>👤 Registered Users</h3>
+        <span id="userCount" style="font-size:0.82rem;color:#aaa;"></span>
+      </div>
+      <div class="admin-section-body" style="padding:0;">
+        <div id="usersList" style="padding:8px 20px 4px;"></div>
+      </div>
+    </div>
+
+    <!-- Pending Invitations -->
+    <div class="admin-section" id="invitesSection">
+      <div class="admin-section-header">
+        <h3>⏳ Pending Invitations</h3>
+        <button class="btn btn-sm btn-secondary" onclick="window.location.href='access-roles.html'">Manage →</button>
+      </div>
+      <div class="admin-section-body" style="padding:0;">
+        <div id="invitesList" style="padding:8px 20px 4px;"></div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <h3>📋 Recent Activity</h3>
+        <button class="btn btn-sm btn-secondary" onclick="refreshActivity()">Refresh</button>
+      </div>
+      <div class="admin-section-body" style="padding:8px 20px;">
+        <div id="activityLog"></div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="danger-zone">
+      <h3>⚠️ Danger Zone</h3>
+      <div class="danger-row">
+        <div>
+          <strong>Clear All Invitations</strong>
+          <div style="font-size:0.8rem;color:#aaa;margin-top:2px;">Remove all pending and accepted invite records</div>
+        </div>
+        <button class="btn-danger" onclick="clearInvites()">Clear Invites</button>
+      </div>
+      <div class="danger-row">
+        <div>
+          <strong>Reset Registered Users</strong>
+          <div style="font-size:0.8rem;color:#aaa;margin-top:2px;">Delete all login accounts from local storage</div>
+        </div>
+        <button class="btn-danger" onclick="resetUsers()">Reset Users</button>
+      </div>
+      <div class="danger-row">
+        <div>
+          <strong>Reset Invoice Data</strong>
+          <div style="font-size:0.8rem;color:#aaa;margin-top:2px;">Restore invoices to sample data</div>
+        </div>
+        <button class="btn-danger" onclick="resetInvoices()">Reset Invoices</button>
+      </div>
+      <div class="danger-row">
+        <div>
+          <strong>Sign Out</strong>
+          <div style="font-size:0.8rem;color:#aaa;margin-top:2px;">Log out of the current admin session</div>
+        </div>
+        <button class="btn-danger" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="supabase-config.js"></script>
+<script>
+function getUsers()   { try { return JSON.parse(localStorage.getItem('nexlance_users')   || '[]'); } catch(e){ return []; } }
+function getInvites() { try { return JSON.parse(localStorage.getItem('nexlance_invites') || '[]'); } catch(e){ return []; } }
+
+async function initAdmin() {
+  if (!isAdminUser()) {
+    window.location.href = 'dashboard.html';
+    return;
+  }
+  const users   = getUsers();
+  const invites = getInvites().filter(i => i.status === 'pending');
+  const members = await fetchTeamMembers();
+
+  // Stats
+  document.getElementById('statUsers').textContent   = users.length;
+  document.getElementById('statTeam').textContent    = members.length;
+  document.getElementById('statInvites').textContent = invites.length;
+
+  // System info
+  const user = (() => { try { return JSON.parse(localStorage.getItem('nexlance_user')||'null'); } catch(e){ return null; } })();
+  document.getElementById('currentAdmin').textContent  = user ? user.name : 'Guest';
+  document.getElementById('lastLogin').textContent     = user ? 'This session' : '—';
+  document.getElementById('dbStatus').textContent      = isSupabaseConfigured ? '🟢 Supabase Connected' : '🟡 Local / Sample Mode';
+  document.getElementById('browserInfo').textContent   = navigator.userAgent.split(' ').slice(-1)[0] || '—';
+  document.getElementById('pageLoaded').textContent    = new Date().toLocaleTimeString('en-IN');
+
+  // localStorage usage estimate
+  let total = 0;
+  for (const k in localStorage) { if (localStorage.hasOwnProperty(k)) total += (localStorage[k].length + k.length) * 2; }
+  document.getElementById('storageInfo').textContent = (total / 1024).toFixed(1) + ' KB used';
+
+  // Render users
+  renderUsers(users);
+  renderInvites(invites);
+  renderActivity(members);
+}
+
+function renderUsers(users) {
+  const el = document.getElementById('usersList');
+  document.getElementById('userCount').textContent = users.length + ' account' + (users.length !== 1 ? 's' : '');
+  if (!users.length) {
+    el.innerHTML = '<p style="color:#aaa;font-size:0.875rem;padding:10px 0;">No registered users yet.</p>';
+    return;
+  }
+  el.innerHTML = users.map(u => `
+    <div class="user-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="user-avatar">${getInitials(u.name)}</div>
+        <div>
+          <div style="font-weight:600;color:#333;">${u.name}</div>
+          <div style="font-size:0.78rem;color:#aaa;">${u.mobile || ''}</div>
+        </div>
+      </div>
+      <div style="color:#888;font-size:0.85rem;">${u.email}</div>
+      <div style="font-size:0.75rem;color:#aaa;">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN') : '—'}</div>
+      <button class="btn-danger" style="font-size:0.75rem;padding:5px 10px;" onclick="deleteUser('${u.email}')">Remove</button>
+    </div>`).join('');
+}
+
+function renderInvites(invites) {
+  const el = document.getElementById('invitesList');
+  if (!invites.length) {
+    el.innerHTML = '<p style="color:#aaa;font-size:0.875rem;padding:10px 0;">No pending invitations.</p>';
+    return;
+  }
+  const roleColors = {Admin:'badge-red','Project Manager':'badge-blue',Developer:'badge-purple',Designer:'badge-teal',Client:'badge-gray'};
+  el.innerHTML = invites.map(inv => `
+    <div class="user-row">
+      <div><strong>${inv.name}</strong></div>
+      <div style="color:#888;font-size:0.85rem;">${inv.email}</div>
+      <span class="badge ${roleColors[inv.role]||'badge-gray'}" style="font-size:0.75rem;">${inv.role}</span>
+      <span style="font-family:monospace;background:#f0ecff;color:#6c5ce7;padding:3px 10px;border-radius:6px;font-size:0.82rem;">${inv.code}</span>
+    </div>`).join('');
+}
+
+function renderActivity(members) {
+  const el = document.getElementById('activityLog');
+  const events = [
+    { icon:'🔐', text:'Admin panel accessed', time: new Date().toLocaleTimeString('en-IN') },
+    { icon:'👥', text:`${members.length} team members loaded`, time: new Date().toLocaleTimeString('en-IN') },
+    { icon:'💾', text:'Local data synced', time: new Date().toLocaleTimeString('en-IN') },
+  ];
+  el.innerHTML = events.map(e => `
+    <div class="activity-row">
+      <span>${e.icon}</span>
+      <span style="flex:1;">${e.text}</span>
+      <span class="activity-time">${e.time}</span>
+    </div>`).join('');
+}
+
+function refreshActivity() {
+  showToast('Activity refreshed', 'info');
+  const el = document.getElementById('activityLog');
+  el.innerHTML = `<div class="activity-row"><span>🔄</span><span style="flex:1;">Activity log refreshed</span><span class="activity-time">${new Date().toLocaleTimeString('en-IN')}</span></div>` + el.innerHTML;
+}
+
+/* ---- Danger Zone Actions ---- */
+function deleteUser(email) {
+  if (!confirm('Remove user ' + email + '?')) return;
+  const users = getUsers().filter(u => u.email !== email);
+  localStorage.setItem('nexlance_users', JSON.stringify(users));
+  renderUsers(users);
+  document.getElementById('statUsers').textContent = users.length;
+  showToast('User removed.', 'info');
+}
+
+function clearInvites() {
+  if (!confirm('Clear all invite records? This cannot be undone.')) return;
+  localStorage.removeItem('nexlance_invites');
+  document.getElementById('invitesList').innerHTML = '<p style="color:#aaa;font-size:0.875rem;padding:10px 0;">No pending invitations.</p>';
+  document.getElementById('statInvites').textContent = '0';
+  showToast('All invites cleared.', 'info');
+}
+
+function resetUsers() {
+  if (!confirm('Delete ALL registered user accounts? They will need to re-register.')) return;
+  localStorage.removeItem('nexlance_users');
+  renderUsers([]);
+  document.getElementById('statUsers').textContent = '0';
+  showToast('All users reset.', 'info');
+}
+
+function resetInvoices() {
+  if (!confirm('Reset invoice data to sample data?')) return;
+  localStorage.removeItem('nexlance_invoices');
+  showToast('Invoices reset to sample data.', 'success');
+}
+
+function signOut() {
+  if (!confirm('Sign out of admin session?')) return;
+  localStorage.removeItem('nexlance_auth');
+  localStorage.removeItem('nexlance_user');
+  window.location.href = 'login.html';
+}
+
+initAdmin();
+</script>
+</body>
+</html>

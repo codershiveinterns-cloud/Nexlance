@@ -6,29 +6,33 @@
 <title>Invoices — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
 
   <aside class="sidebar">
-    <h2 class="logo">Nexlance</h2>
+    <h2 class="logo">Nexlance</h2> 
     <ul class="nav">
       <li><a href="dashboard.html">📊 Dashboard</a></li>
       <li><a href="clients.html">👥 Clients</a></li>
       <li><a href="team.html">🧑‍💼 Team</a></li>
       <li><a href="projects.html">📁 Projects</a></li>
       <li class="active"><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
       <li><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search invoices...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <div class="page-header">
@@ -114,6 +118,11 @@
 <script>
 let invoices = [];
 let currentFilter = '';
+function ensureDataAccess() {
+  if (!isUpgradeRequiredForData()) return true;
+  showToast(getUpgradeRequiredMessage(), 'error');
+  return false;
+}
 
 const statusBadges = { paid:'badge-green', pending:'badge-orange', overdue:'badge-red', recurring:'badge-blue' };
 const statusLabels = { paid:'Paid ✓', pending:'Pending', overdue:'Overdue ⚠', recurring:'Recurring 🔄' };
@@ -157,6 +166,10 @@ function renderTable(data) {
   const tbody = document.getElementById('invoicesBody');
   document.getElementById('tableCount').textContent = data.length + ' invoices';
   document.getElementById('invCount').textContent = data.length + ' shown';
+  if (isUpgradeRequiredForData()) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="e-icon">🔒</div><h3>Upgrade required</h3><p>${getUpgradeRequiredMessage()}</p></div></td></tr>`;
+    return;
+  }
   if (!data.length) {
     tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="e-icon">🧾</div><h3>No invoices found</h3></div></td></tr>`;
     return;
@@ -192,6 +205,7 @@ function filterByStatus(status) {
 document.getElementById('searchInput').addEventListener('input', () => renderTable(getFiltered()));
 
 async function markPaid(id) {
+  if (!ensureDataAccess()) return;
   if (!confirm('Mark this invoice as Paid?')) return;
   const today = new Date().toISOString().split('T')[0];
   try {
@@ -204,16 +218,10 @@ async function markPaid(id) {
 }
 
 async function handleDelete(id) {
+  if (!ensureDataAccess()) return;
   if (!confirm('Delete this invoice permanently?')) return;
   try {
-    if (isSupabaseConfigured) {
-      const { error } = await db.from('invoices').delete().eq('id', id);
-      if (error) throw error;
-    } else {
-      const idx = sampleInvoices.findIndex(i => i.id === id);
-      if (idx > -1) sampleInvoices.splice(idx, 1);
-      invoices = [...sampleInvoices];
-    }
+    await deleteInvoice(id);
     invoices = invoices.filter(i => i.id !== id);
     renderStats(); renderTable(getFiltered());
     showToast('Invoice deleted.', 'info');

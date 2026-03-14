@@ -6,7 +6,10 @@
 <title>Client Profile — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -19,16 +22,17 @@
       <li><a href="team.html">🧑‍💼 Team</a></li>
       <li><a href="projects.html">📁 Projects</a></li>
       <li><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
       <li><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <!-- Breadcrumb -->
@@ -208,6 +212,7 @@ const clientId = params.get('id');
 let client = null;
 
 async function init() {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); window.location.href = 'clients.html'; return; }
   if (!clientId) { window.location.href = 'clients.html'; return; }
   const clients = await fetchClients();
   client = clients.find(c => c.id === clientId);
@@ -311,6 +316,7 @@ function switchTab(el, name) {
 }
 
 function openEditModal() {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
   if (!client) return;
   ['eName','eEmail','ePhone','eCompany','eDomain','eHostingProvider','eProjectType','ePlatform','eHostingExpiry','eSslExpiry','eMaintenance','ePlanType'].forEach(id => {
     const map = { eName:'name',eEmail:'email',ePhone:'phone',eCompany:'company',eDomain:'domain_name',eHostingProvider:'hosting_provider',eProjectType:'project_type',ePlatform:'platform',eHostingExpiry:'hosting_expiry',eSslExpiry:'ssl_expiry',eMaintenance:'maintenance_plan',ePlanType:'plan_type' };
@@ -323,6 +329,7 @@ function openEditModal() {
 function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
 
 async function saveEdit() {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
   const data = {
     name: document.getElementById('eName').value.trim(),
     email: document.getElementById('eEmail').value.trim(),

@@ -7,7 +7,10 @@
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -20,16 +23,17 @@
       <li><a href="team.html">🧑‍💼 Team</a></li>
       <li><a href="projects.html">📁 Projects</a></li>
       <li><a href="invoices.html">🧾 Invoices</a></li>
-      <li class="active"><a href="reports.html">📈 Reports</a></li>
       <li><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <div class="page-header">
@@ -174,13 +178,23 @@ function renderStats() {
 }
 
 function renderCharts() {
+  if (isUpgradeRequiredForData()) {
+    ['monthlyRevenueChart','typeRevenueChart','maintenanceChart','projectStatusChart'].forEach(id => {
+      const canvas = document.getElementById(id);
+      const parent = canvas && canvas.parentElement;
+      if (parent) {
+        parent.innerHTML = `<h3>${parent.querySelector('h3') ? parent.querySelector('h3').textContent : 'Report'}</h3><div class="empty-state"><div class="e-icon">🔒</div><h3>Upgrade required</h3><p>${getUpgradeRequiredMessage()}</p></div>`;
+      }
+    });
+    return;
+  }
   // Monthly Revenue (simulated data based on real invoices + fill)
   const monthlyData = months.map((_, i) => {
     const paid = invoices.filter(inv => {
       if (!inv.paid_date) return false;
       return new Date(inv.paid_date).getMonth() === i;
     }).reduce((s,inv) => s + (inv.total_amount||0), 0);
-    return paid || Math.floor(Math.random() * 80000 + 40000); // fallback sample
+    return paid;
   });
 
   if (monthlyChart) monthlyChart.destroy();
@@ -209,11 +223,11 @@ function renderCharts() {
 
   // Revenue by Website Type
   const typeData = [
-    { label: 'Business Website', value: clients.filter(c=>c.project_type==='Business Website').reduce((s,c)=>s+(c.total_contract_value||0),0) || 300000 },
-    { label: 'Ecommerce Website', value: clients.filter(c=>c.project_type==='Ecommerce Website').reduce((s,c)=>s+(c.total_contract_value||0),0) || 440000 },
-    { label: 'Landing Page', value: clients.filter(c=>c.project_type==='Landing Page').reduce((s,c)=>s+(c.total_contract_value||0),0) || 60000 },
-    { label: 'Maintenance', value: invoices.filter(i=>i.status==='recurring').reduce((s,i)=>s+(i.total_amount||0),0) || 75000 },
-    { label: 'SEO Add-on', value: 80000 }
+    { label: 'Business Website', value: clients.filter(c=>c.project_type==='Business Website').reduce((s,c)=>s+(c.total_contract_value||0),0) },
+    { label: 'Ecommerce Website', value: clients.filter(c=>c.project_type==='Ecommerce Website').reduce((s,c)=>s+(c.total_contract_value||0),0) },
+    { label: 'Landing Page', value: clients.filter(c=>c.project_type==='Landing Page').reduce((s,c)=>s+(c.total_contract_value||0),0) },
+    { label: 'Maintenance', value: invoices.filter(i=>i.status==='recurring').reduce((s,i)=>s+(i.total_amount||0),0) },
+    { label: 'SEO Add-on', value: services.filter(s=>s.name==='SEO Add-on').reduce((s,sv)=>s+(sv.revenue_generated||0),0) }
   ].filter(d => d.value > 0);
 
   if (typeChart) typeChart.destroy();
@@ -241,7 +255,7 @@ function renderCharts() {
   // Maintenance Recurring Trend
   const maintData = months.map((_, i) => {
     const recurring = invoices.filter(inv => inv.status === 'recurring').reduce((s,inv) => s + (inv.amount||0), 0);
-    return recurring || (5000 + i * 800);
+    return recurring;
   });
 
   if (mainChart) mainChart.destroy();
@@ -272,12 +286,12 @@ function renderCharts() {
 
   // Project Status Chart
   const statusCounts = {
-    'Planning': projects.filter(p=>p.status==='Planning').length || 2,
-    'Design': projects.filter(p=>p.status==='Design').length || 4,
-    'Development': projects.filter(p=>p.status==='Development').length || 6,
-    'Testing': projects.filter(p=>p.status==='Testing').length || 3,
-    'Live': projects.filter(p=>p.status==='Live').length || 8,
-    'On Hold': projects.filter(p=>p.status==='On Hold').length || 1
+    'Planning': projects.filter(p=>p.status==='Planning').length,
+    'Design': projects.filter(p=>p.status==='Design').length,
+    'Development': projects.filter(p=>p.status==='Development').length,
+    'Testing': projects.filter(p=>p.status==='Testing').length,
+    'Live': projects.filter(p=>p.status==='Live').length,
+    'On Hold': projects.filter(p=>p.status==='On Hold').length
   };
 
   if (statusChart) statusChart.destroy();
@@ -305,6 +319,10 @@ function renderCharts() {
 }
 
 function renderTopClients() {
+  if (isUpgradeRequiredForData()) {
+    document.getElementById('topClientsBody').innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="e-icon">🔒</div><h3>Upgrade required</h3><p>${getUpgradeRequiredMessage()}</p></div></td></tr>`;
+    return;
+  }
   const sorted = [...clients].sort((a,b) => (b.total_contract_value||0) - (a.total_contract_value||0));
   const planBadges = { 'Premium':'badge-purple','Basic':'badge-blue','Custom':'badge-orange' };
   document.getElementById('topClientsBody').innerHTML = sorted.slice(0,8).map((c,i) => {
@@ -322,6 +340,10 @@ function renderTopClients() {
 }
 
 function renderServiceRevenue() {
+  if (isUpgradeRequiredForData()) {
+    document.getElementById('serviceRevenueBody').innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="e-icon">🔒</div><h3>Upgrade required</h3><p>${getUpgradeRequiredMessage()}</p></div></td></tr>`;
+    return;
+  }
   const totalRev = services.reduce((s,sv) => s + (sv.revenue_generated||0), 0);
   document.getElementById('serviceRevenueBody').innerHTML = [...services]
     .sort((a,b) => (b.revenue_generated||0) - (a.revenue_generated||0))

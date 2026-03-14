@@ -6,7 +6,10 @@
 <title>Create Invoice — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -19,16 +22,17 @@
       <li><a href="team.html">🧑‍💼 Team</a></li>
       <li><a href="projects.html">📁 Projects</a></li>
       <li class="active"><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
       <li><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <div class="breadcrumb">
@@ -141,7 +145,7 @@
           <div class="inv-header">
             <div>
               <div class="inv-logo">Nexlance</div>
-              <div style="font-size:0.8rem;color:#888;">Web Design Agency<br>hello@nexlance.com</div>
+              <div style="font-size:0.8rem;color:#888;">Web Design Agency<br>vijaypratap@nexlancedigital.com</div>
             </div>
             <div class="inv-meta" style="text-align:right;">
               <h2>INVOICE</h2>
@@ -285,10 +289,16 @@ function updatePreview() {
 }
 
 async function saveInvoice() {
-  const client = document.getElementById('fClient').value.trim();
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
+  const client  = document.getElementById('fClient').value.trim();
+  const invDate = document.getElementById('fInvDate').value;
   const dueDate = document.getElementById('fDueDate').value;
   if (!client) { showToast('Client name is required', 'error'); return; }
   if (!dueDate) { showToast('Due date is required', 'error'); return; }
+  if (invDate && !isValidDate(invDate)) { markDateError('fInvDate', 'Invalid invoice date'); showToast('Enter a valid invoice date', 'error'); return; }
+  if (!isValidDate(dueDate)) { markDateError('fDueDate', 'Invalid due date'); showToast('Enter a valid due date', 'error'); return; }
+  if (invDate && !isDateSameOrAfter(invDate, dueDate)) { markDateError('fDueDate', 'Due date must be on or after the invoice date'); showToast('Due date must be on or after the invoice date', 'error'); return; }
+  clearDateError('fInvDate'); clearDateError('fDueDate');
 
   const { subtotal, gst, total, gstPct } = calcTotals();
   const descParts = lineItems.filter(it => it.desc).map(it => it.desc);
@@ -312,6 +322,9 @@ async function saveInvoice() {
     setTimeout(() => window.location.href = 'invoices.html', 1200);
   } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
+
+attachDateValidation('fInvDate', { label: 'Invoice Date' });
+attachDateValidation('fDueDate', { label: 'Due Date', required: true });
 
 // Print styles
 const printStyle = document.createElement('style');

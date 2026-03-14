@@ -9,6 +9,10 @@ body {
     background: #f3efff;
 } 
 
+body.modal-open {
+    overflow: hidden;
+}
+
 .container {
     display: flex;
     height: 100vh;
@@ -171,4 +175,33 @@ body {
 .warning {
     background: #fff4d6;
     color: #e17055;
+}
+
+@media (max-width: 960px) {
+    .container {
+        height: auto;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .main {
+        padding: 20px;
+    }
+
+    .charts {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .topbar input {
+        width: 100%;
+    }
 }

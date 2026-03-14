@@ -6,7 +6,10 @@
 <title>Projects — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -19,25 +22,23 @@
       <li><a href="team.html">🧑‍💼 Team</a></li>
       <li class="active"><a href="projects.html">📁 Projects</a></li>
       <li><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
       <li><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search projects...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <div class="page-header">
       <div class="page-header-left">
         <h1>Projects</h1>
         <p>Track all website projects and their progress</p>
-      </div>
-      <div class="page-header-actions">
-        <button class="btn btn-primary" onclick="openAddModal()">+ New Project</button>
       </div>
     </div>
 
@@ -124,6 +125,11 @@
 <script>
 let projects = [];
 let editingId = null;
+function ensureDataAccess() {
+  if (!isUpgradeRequiredForData()) return true;
+  showToast(getUpgradeRequiredMessage(), 'error');
+  return false;
+}
 
 const statusBadges = {
   'Live':'badge-green','Development':'badge-blue','Design':'badge-purple',
@@ -147,6 +153,10 @@ function renderStats() {
 function renderTable(data) {
   const tbody = document.getElementById('projectsBody');
   document.getElementById('tableCount').textContent = data.length + ' projects';
+  if (isUpgradeRequiredForData()) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">🔒</div><h3>Upgrade required</h3><p>${getUpgradeRequiredMessage()}</p></div></td></tr>`;
+    return;
+  }
   if (!data.length) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">📁</div><h3>No projects found</h3><p>Create your first project</p></div></td></tr>`;
     return;
@@ -174,8 +184,6 @@ function renderTable(data) {
       </td>
       <td>
         <div class="table-actions">
-          <a href="project-detail.html?id=${p.id}" class="action-btn action-view" title="View">👁</a>
-          <button class="action-btn action-edit" onclick="openEditModal('${p.id}')" title="Edit">✏️</button>
           <button class="action-btn action-delete" onclick="handleDelete('${p.id}')" title="Delete">🗑</button>
         </div>
       </td>
@@ -196,6 +204,7 @@ document.getElementById('searchInput').addEventListener('input', filterProjects)
 document.getElementById('filterStatus').addEventListener('change', filterProjects);
 
 function openAddModal() {
+  if (!ensureDataAccess()) return;
   editingId = null;
   document.getElementById('modalTitle').textContent = 'New Project';
   ['fName','fClientName','fStart','fDeadline','fTeam','fScope','fDeliverables'].forEach(id => document.getElementById(id).value = '');
@@ -204,6 +213,7 @@ function openAddModal() {
   document.getElementById('projectModal').classList.add('active');
 }
 function openEditModal(id) {
+  if (!ensureDataAccess()) return;
   const p = projects.find(x => x.id === id);
   if (!p) return;
   editingId = id;
@@ -222,14 +232,21 @@ function openEditModal(id) {
 function closeModal() { document.getElementById('projectModal').classList.remove('active'); }
 
 async function saveProject() {
+  if (!ensureDataAccess()) return;
   const name = document.getElementById('fName').value.trim();
   if (!name) { showToast('Project name is required', 'error'); return; }
+  const start    = document.getElementById('fStart').value;
+  const deadline = document.getElementById('fDeadline').value;
+  if (start && !isValidDate(start))    { markDateError('fStart', 'Invalid start date'); showToast('Enter a valid start date', 'error'); return; }
+  if (deadline && !isValidDate(deadline)) { markDateError('fDeadline', 'Invalid deadline'); showToast('Enter a valid deadline', 'error'); return; }
+  if (start && deadline && !isDateSameOrAfter(start, deadline)) { markDateError('fDeadline', 'Deadline must be on or after start date'); showToast('Deadline must be on or after the start date', 'error'); return; }
+  clearDateError('fStart'); clearDateError('fDeadline');
   const data = {
     name,
     client_name: document.getElementById('fClientName').value.trim(),
     status: document.getElementById('fStatus').value,
-    start_date: document.getElementById('fStart').value || null,
-    deadline: document.getElementById('fDeadline').value || null,
+    start_date: start || null,
+    deadline: deadline || null,
     assigned_team: document.getElementById('fTeam').value.trim(),
     progress: Number(document.getElementById('fProgress').value) || 0,
     scope_of_work: document.getElementById('fScope').value.trim(),
@@ -251,6 +268,7 @@ async function saveProject() {
 }
 
 async function handleDelete(id) {
+  if (!ensureDataAccess()) return;
   if (!confirm('Delete this project and all its tasks?')) return;
   try {
     await deleteProject(id);
@@ -261,7 +279,90 @@ async function handleDelete(id) {
 }
 
 document.getElementById('projectModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+attachDateValidation('fStart',    { label: 'Start Date' });
+attachDateValidation('fDeadline', { label: 'Deadline' });
 init();
+
+// Listen for template project updates
+window.addEventListener('nexlance-project-updated', init);
+window.addEventListener('nexlance-project-completed', init);
+window.addEventListener('nexlance-data-changed', init);
+
+function ensureAccountSidebarActions() {
+  const nav = document.querySelector('.sidebar .nav');
+  if (!nav || document.getElementById('logoutBtn') || document.getElementById('deleteAccountBtn')) return;
+
+  const separator = document.createElement('hr');
+  separator.style.border = 'none';
+  separator.style.borderTop = '1px solid #c9bfff';
+  separator.style.margin = '12px 0 8px';
+  nav.appendChild(separator);
+
+  const deleteItem = document.createElement('li');
+  deleteItem.innerHTML = '<button id="deleteAccountBtn" style="background:none;border:none;color:#b42318;cursor:pointer;font-size:0.95rem;padding:8px 0;width:100%;text-align:left;font-weight:600;">Delete Account</button>';
+  nav.appendChild(deleteItem);
+
+  const logoutItem = document.createElement('li');
+  logoutItem.style.marginTop = 'auto';
+  logoutItem.innerHTML = '<button id="logoutBtn" style="background:none;border:none;color:#999;cursor:pointer;font-size:0.95rem;padding:8px 0;width:100%;text-align:left;">Logout</button>';
+  nav.appendChild(logoutItem);
+}
+
+async function logoutCurrentUser() {
+  try {
+    if (typeof firebase !== 'undefined' && firebase.auth) await firebase.auth().signOut();
+  } catch (error) {
+    console.error('Logout error:', error);
+  } finally {
+    localStorage.removeItem('nexlance_auth');
+    localStorage.removeItem('nexlance_user');
+    localStorage.removeItem('nexlance_trial');
+    localStorage.removeItem('nexlance_plan');
+    window.location.href = 'index.html';
+  }
+}
+
+async function deleteCurrentAccount() {
+  const currentUser = JSON.parse(localStorage.getItem('nexlance_user') || 'null');
+  const email = currentUser && currentUser.email ? String(currentUser.email).trim().toLowerCase() : '';
+  if (!email) {
+    showToast('No signed-in account found.', 'error');
+    return;
+  }
+
+  try {
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser && typeof db !== 'undefined' && db) {
+      const authUser = firebase.auth().currentUser;
+      await db.collection('deleted_accounts').doc(email.replace(/[.#$/\[\]]/g, '_')).set({ email, deletedAt: new Date().toISOString(), trialUsed: true });
+      await db.collection('users').doc(authUser.uid).delete();
+      await authUser.delete();
+    } else {
+      const users = JSON.parse(localStorage.getItem('nexlance_users') || '[]').filter(user => String(user.email || '').trim().toLowerCase() !== email);
+      localStorage.setItem('nexlance_users', JSON.stringify(users));
+      const deletedAccounts = JSON.parse(localStorage.getItem('nexlance_deleted_accounts') || '{}');
+      deletedAccounts[email] = { email, deletedAt: new Date().toISOString(), trialUsed: true };
+      localStorage.setItem('nexlance_deleted_accounts', JSON.stringify(deletedAccounts));
+    }
+  } catch (error) {
+    console.error('Delete account error:', error);
+    showToast(error.code === 'auth/requires-recent-login' ? 'Please log in again, then delete the account.' : 'Could not delete the account. Please try again.', 'error');
+    return;
+  }
+
+  localStorage.removeItem('nexlance_auth');
+  localStorage.removeItem('nexlance_user');
+  localStorage.removeItem('nexlance_trial');
+  localStorage.removeItem('nexlance_plan');
+  window.location.href = 'login.html';
+}
+
+ensureAccountSidebarActions();
+document.getElementById('logoutBtn')?.addEventListener('click', () => {
+  if (confirm('Do you want to log out?')) logoutCurrentUser();
+});
+document.getElementById('deleteAccountBtn')?.addEventListener('click', () => {
+  if (confirm('Do you want to delete your account? This cannot be undone.')) deleteCurrentAccount();
+});
 </script>
 </body>
 </html>

@@ -6,7 +6,10 @@
 <title>Services — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -19,16 +22,17 @@
       <li><a href="team.html">🧑‍💼 Team</a></li>
       <li><a href="projects.html">📁 Projects</a></li>
       <li><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
       <li class="active"><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search services...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <div class="page-header">
@@ -120,6 +124,11 @@
 <script>
 let services = [];
 let editingId = null;
+function ensureDataAccess() {
+  if (!isUpgradeRequiredForData()) return true;
+  showToast(getUpgradeRequiredMessage(), 'error');
+  return false;
+}
 
 async function init() {
   services = await fetchServices();
@@ -139,6 +148,10 @@ function renderStats() {
 
 function renderGrid() {
   const grid = document.getElementById('servicesGrid');
+  if (isUpgradeRequiredForData()) {
+    grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state"><div class="e-icon">🔒</div><h3>Upgrade required</h3><p>${getUpgradeRequiredMessage()}</p></div></div>`;
+    return;
+  }
   if (!services.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state"><div class="e-icon">🛠</div><h3>No services yet</h3><p>Add your first service offering</p></div></div>`;
     return;
@@ -179,6 +192,7 @@ function renderGrid() {
 }
 
 function openAddModal() {
+  if (!ensureDataAccess()) return;
   editingId = null;
   document.getElementById('modalTitle').textContent = 'Add Service';
   ['fName','fDesc','fPrice','fDays','fClients','fRevenue'].forEach(id => document.getElementById(id).value = '');
@@ -187,6 +201,7 @@ function openAddModal() {
 }
 
 function openEditModal(id) {
+  if (!ensureDataAccess()) return;
   const sv = services.find(s => s.id === id);
   if (!sv) return;
   editingId = id;
@@ -203,6 +218,7 @@ function openEditModal(id) {
 function closeModal() { document.getElementById('serviceModal').classList.remove('active'); }
 
 async function saveService() {
+  if (!ensureDataAccess()) return;
   const name = document.getElementById('fName').value.trim();
   if (!name) { showToast('Service name is required', 'error'); return; }
   const data = {
@@ -230,6 +246,7 @@ async function saveService() {
 }
 
 async function handleDelete(id) {
+  if (!ensureDataAccess()) return;
   if (!confirm('Remove this service?')) return;
   try {
     await deleteService(id);

@@ -6,7 +6,10 @@
 <title>Project Detail — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -19,16 +22,17 @@
       <li><a href="team.html">🧑‍💼 Team</a></li>
       <li class="active"><a href="projects.html">📁 Projects</a></li>
       <li><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
       <li><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <div class="breadcrumb">
@@ -205,6 +209,7 @@ const columns = [
 const statusBadges = { 'Live':'badge-green','Development':'badge-blue','Design':'badge-purple','Testing':'badge-teal','Planning':'badge-gray','On Hold':'badge-orange' };
 
 async function init() {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); window.location.href = 'projects.html'; return; }
   if (!projectId) { window.location.href = 'projects.html'; return; }
   const projects = await fetchProjects();
   project = projects.find(p => p.id === projectId);
@@ -315,6 +320,7 @@ async function onDrop(e) {
 
 // Task Modal
 function openAddTaskModal(defaultStatus = 'todo') {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
   editingTaskId = null;
   document.getElementById('taskModalTitle').textContent = 'Add Task';
   document.getElementById('tTitle').value = '';
@@ -326,6 +332,7 @@ function openAddTaskModal(defaultStatus = 'todo') {
   document.getElementById('taskModal').classList.add('active');
 }
 function openEditTaskModal(id) {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
   const t = tasks.find(x => x.id === id);
   if (!t) return;
   editingTaskId = id;
@@ -341,6 +348,7 @@ function openEditTaskModal(id) {
 function closeTaskModal() { document.getElementById('taskModal').classList.remove('active'); }
 
 async function saveTask() {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
   const title = document.getElementById('tTitle').value.trim();
   if (!title) { showToast('Task title is required', 'error'); return; }
   const data = {
@@ -368,6 +376,7 @@ async function saveTask() {
 }
 
 async function deleteTaskCard(id) {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
   if (!confirm('Delete this task?')) return;
   try {
     await deleteTask(id);
@@ -378,6 +387,7 @@ async function deleteTaskCard(id) {
 
 // Edit Project
 function openEditProjectModal() {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
   if (!project) return;
   document.getElementById('epName').value = project.name || '';
   document.getElementById('epClient').value = project.client_name || '';
@@ -392,6 +402,7 @@ function openEditProjectModal() {
 }
 function closeEditProject() { document.getElementById('editProjModal').classList.remove('active'); }
 async function saveEditProject() {
+  if (isUpgradeRequiredForData()) { showToast(getUpgradeRequiredMessage(), 'error'); return; }
   const name = document.getElementById('epName').value.trim();
   if (!name) { showToast('Name required', 'error'); return; }
   const data = {

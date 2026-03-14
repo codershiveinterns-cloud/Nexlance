@@ -6,7 +6,10 @@
 <title>Team — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -19,16 +22,17 @@
       <li class="active"><a href="team.html">🧑‍💼 Team</a></li>
       <li><a href="projects.html">📁 Projects</a></li>
       <li><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
       <li><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
   <main class="main">
     <div class="topbar">
       <input type="text" placeholder="Search team members...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <div class="page-header">
@@ -121,6 +125,11 @@
 <script>
 let members = [];
 let editingId = null;
+function ensureDataAccess() {
+  if (!isUpgradeRequiredForData()) return true;
+  showToast(getUpgradeRequiredMessage(), 'error');
+  return false;
+}
 
 const roleColors = {
   'Admin': 'badge-red', 'Project Manager': 'badge-blue',
@@ -149,6 +158,10 @@ function renderStats() {
 
 function renderGrid(data) {
   const grid = document.getElementById('teamGrid');
+  if (isUpgradeRequiredForData()) {
+    grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state"><div class="e-icon">🔒</div><h3>Upgrade required</h3><p>${getUpgradeRequiredMessage()}</p></div></div>`;
+    return;
+  }
   if (!data.length) {
     grid.innerHTML = `<div style="grid-column:1/-1;"><div class="empty-state"><div class="e-icon">🧑‍💼</div><h3>No team members found</h3><p>Add team members to get started</p></div></div>`;
     return;
@@ -186,6 +199,7 @@ document.getElementById('searchInput').addEventListener('input', filterMembers);
 document.getElementById('filterRole').addEventListener('change', filterMembers);
 
 function openAddModal() {
+  if (!ensureDataAccess()) return;
   editingId = null;
   document.getElementById('modalTitle').textContent = 'Add Team Member';
   document.getElementById('fName').value = '';
@@ -196,6 +210,7 @@ function openAddModal() {
 }
 
 function openEditModal(id) {
+  if (!ensureDataAccess()) return;
   const m = members.find(x => x.id === id);
   if (!m) return;
   editingId = id;
@@ -212,6 +227,7 @@ function openEditModal(id) {
 function closeModal() { document.getElementById('memberModal').classList.remove('active'); }
 
 async function saveMember() {
+  if (!ensureDataAccess()) return;
   const name = document.getElementById('fName').value.trim();
   const email = document.getElementById('fEmail').value.trim();
   if (!name || !email) { showToast('Name and email are required', 'error'); return; }
@@ -239,6 +255,7 @@ async function saveMember() {
 }
 
 async function handleDelete(id) {
+  if (!ensureDataAccess()) return;
   if (!confirm('Remove this team member?')) return;
   try {
     await deleteTeamMember(id);

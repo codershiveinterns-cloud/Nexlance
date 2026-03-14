@@ -6,7 +6,10 @@
 <title>Clients — Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="container">
@@ -20,9 +23,10 @@
       <li><a href="team.html">🧑‍💼 Team</a></li>
       <li><a href="projects.html">📁 Projects</a></li>
       <li><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
       <li><a href="services.html">🛠 Services</a></li>
       <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">👨‍💻 Support Info</a></li>
     </ul>
   </aside>
 
@@ -30,7 +34,7 @@
   <main class="main">
     <div class="topbar">
       <input type="text" id="globalSearch" placeholder="Search clients, projects, invoices...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
     <!-- Page Header -->
@@ -225,6 +229,11 @@
 <script>
 let clients = [];
 let editingId = null;
+function ensureDataAccess() {
+  if (!isUpgradeRequiredForData()) return true;
+  showToast(getUpgradeRequiredMessage(), 'error');
+  return false;
+}
 
 async function init() {
   clients = await fetchClients();
@@ -257,6 +266,10 @@ function planBadge(plan) {
 function renderTable(data) {
   const tbody = document.getElementById('clientsTableBody');
   document.getElementById('tableCount').textContent = data.length + ' clients';
+  if (isUpgradeRequiredForData()) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">🔒</div><h3>Upgrade required</h3><p>${getUpgradeRequiredMessage()}</p></div></td></tr>`;
+    return;
+  }
   if (!data.length) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="e-icon">👥</div><h3>No clients found</h3><p>Add your first client to get started</p></div></td></tr>`;
     return;
@@ -309,6 +322,7 @@ document.getElementById('filterType').addEventListener('change', filterClients);
 document.getElementById('filterPlan').addEventListener('change', filterClients);
 
 function openAddModal() {
+  if (!ensureDataAccess()) return;
   editingId = null;
   document.getElementById('modalTitle').textContent = 'Add New Client';
   ['fName','fEmail','fPhone','fCompany','fDomain','fHostingProvider','fHostingExpiry','fSslExpiry','fContractValue','fPaidAmount'].forEach(id => document.getElementById(id).value = '');
@@ -320,6 +334,7 @@ function openAddModal() {
 }
 
 function openEditModal(id) {
+  if (!ensureDataAccess()) return;
   const c = clients.find(x => x.id === id);
   if (!c) return;
   editingId = id;
@@ -344,8 +359,14 @@ function openEditModal(id) {
 function closeModal() { document.getElementById('clientModal').classList.remove('active'); }
 
 async function saveClient() {
+  if (!ensureDataAccess()) return;
   const name = document.getElementById('fName').value.trim();
   if (!name) { showToast('Client name is required', 'error'); return; }
+  const he = document.getElementById('fHostingExpiry').value;
+  const se = document.getElementById('fSslExpiry').value;
+  if (he && !isValidDate(he)) { markDateError('fHostingExpiry', 'Invalid hosting expiry date'); showToast('Enter a valid hosting expiry date', 'error'); return; }
+  if (se && !isValidDate(se)) { markDateError('fSslExpiry', 'Invalid SSL expiry date'); showToast('Enter a valid SSL expiry date', 'error'); return; }
+  clearDateError('fHostingExpiry'); clearDateError('fSslExpiry');
   const data = {
     name, email: document.getElementById('fEmail').value.trim(),
     phone: document.getElementById('fPhone').value.trim(),
@@ -354,8 +375,8 @@ async function saveClient() {
     hosting_provider: document.getElementById('fHostingProvider').value.trim(),
     project_type: document.getElementById('fProjectType').value,
     platform: document.getElementById('fPlatform').value,
-    hosting_expiry: document.getElementById('fHostingExpiry').value || null,
-    ssl_expiry: document.getElementById('fSslExpiry').value || null,
+    hosting_expiry: he || null,
+    ssl_expiry: se || null,
     maintenance_plan: document.getElementById('fMaintenance').value,
     plan_type: document.getElementById('fPlanType').value,
     total_contract_value: Number(document.getElementById('fContractValue').value) || 0,
@@ -377,6 +398,7 @@ async function saveClient() {
 }
 
 async function handleDelete(id) {
+  if (!ensureDataAccess()) return;
   if (!confirm('Delete this client? This action cannot be undone.')) return;
   try {
     await deleteClient(id);
@@ -391,6 +413,8 @@ document.getElementById('clientModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
+attachDateValidation('fHostingExpiry', { label: 'Hosting Expiry' });
+attachDateValidation('fSslExpiry',     { label: 'SSL Expiry' });
 init();
 </script>
 </body>

@@ -3,40 +3,251 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Nexlance</title>
+<title>Dashboard - Nexlance</title>
 <link rel="stylesheet" href="dashboard.css">
 <link rel="stylesheet" href="app.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+  .trial-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #4b3fbf, #6c5ce7);
+    color: #fff;
+    box-shadow: 0 14px 32px rgba(108, 92, 231, 0.22);
+  }
+
+  .trial-banner.expired {
+    background: linear-gradient(135deg, #2d1b69, #e17055);
+  }
+
+  .trial-banner.active {
+    background: linear-gradient(135deg, #0f8b5f, #00b894);
+  }
+
+  .trial-banner h3 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+  }
+
+  .trial-banner p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.92rem;
+  }
+
+  .trial-timer {
+    min-width: 220px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.12);
+    text-align: center;
+  }
+
+  .trial-timer strong {
+    display: block;
+    font-size: 1.2rem;
+    margin-top: 4px;
+  }
+
+  .trial-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .upgrade-button {
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #fff;
+    color: #4b3fbf;
+  }
+
+  .upgrade-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.86);
+    margin-bottom: 6px;
+  }
+
+  .plans-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(31, 26, 68, 0.62);
+    z-index: 1000;
+  }
+
+  .plans-modal.open {
+    display: flex;
+  }
+
+  .plans-dialog {
+    width: min(960px, 100%);
+    background: #fff;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(45, 27, 105, 0.24);
+  }
+
+  .plans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  .plans-header h2 {
+    margin: 0 0 6px;
+    color: #2d1b69;
+  }
+
+  .plans-header p {
+    margin: 0;
+    color: #777;
+  }
+
+  .plans-close {
+    border: none;
+    background: #f3efff;
+    color: #4b3fbf;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .plan-card {
+    border: 1px solid #e6defa;
+    border-radius: 18px;
+    padding: 20px;
+    background: #fcfbff;
+  }
+
+  .plan-card.featured {
+    background: linear-gradient(180deg, #f4f1ff, #ffffff);
+    border-color: #6c5ce7;
+    box-shadow: 0 12px 30px rgba(108, 92, 231, 0.12);
+  }
+
+  .plan-price {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #2d1b69;
+    margin: 8px 0 14px;
+  }
+
+  .plan-card ul {
+    padding-left: 18px;
+    color: #555;
+    line-height: 1.7;
+    min-height: 128px;
+  }
+
+  .plan-card a {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+    background: #6c5ce7;
+    color: #fff;
+  }
+
+  .plan-card.featured a {
+    background: #4b3fbf;
+  }
+
+  .danger-button {
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #d63031;
+    color: #fff;
+  }
+
+  .danger-button.ghost {
+    background: #fceaea;
+    color: #b42318;
+  }
+
+  .danger-note {
+    color: #777;
+    line-height: 1.6;
+    margin: 0 0 18px;
+  }
+
+  .danger-warning {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #fff2f2;
+    color: #b42318;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .trial-banner {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .plans-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
 </head>
 <body>
 <div class="container">
-
-  <!-- Sidebar -->
   <aside class="sidebar">
     <h2 class="logo">Nexlance</h2>
     <ul class="nav">
-      <li class="active"><a href="dashboard.html">📊 Dashboard</a></li>
-      <li><a href="clients.html">👥 Clients</a></li>
-      <li><a href="team.html">🧑‍💼 Team</a></li>
-      <li><a href="projects.html">📁 Projects</a></li>
-      <li><a href="invoices.html">🧾 Invoices</a></li>
-      <li><a href="reports.html">📈 Reports</a></li>
-      <li><a href="services.html">🛠 Services</a></li>
-      <li><a href="access-roles.html">🔐 Access / Roles</a></li>
+      <li class="active"><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="clients.html">Clients</a></li>
+      <li><a href="team.html">Team</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="invoices.html">Invoices</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="access-roles.html">Access / Roles</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><a href="developer-info.html">Support Info</a></li>
+      <hr style="border:none;border-top:1px solid #c9bfff;margin:12px 0 8px;">
+      <li><button id="deleteAccountBtn" style="background:none;border:none;color:#b42318;cursor:pointer;font-size:0.95rem;padding:8px 0;width:100%;text-align:left;font-weight:600;">Delete Account</button></li>
+      <li style="margin-top:auto;"><button id="logoutBtn" style="background:none;border:none;color:#999;cursor:pointer;font-size:0.95rem;padding:8px 0;width:100%;text-align:left;transition:color 0.2s;" title="Logout" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='#999'">Logout</button></li>
     </ul>
   </aside>
 
-  <!-- Main Content -->
   <main class="main">
-
-    <!-- Top Bar -->
     <div class="topbar">
       <input type="text" placeholder="Search dashboards, clients, projects...">
-      <div class="profile">Admin</div>
+      <div class="profile">Account</div>
     </div>
 
-    <!-- Page Header -->
     <div class="page-header">
       <div class="page-header-left">
         <h1>Dashboard</h1>
@@ -48,131 +259,207 @@
       </div>
     </div>
 
-    <!-- Summary Cards -->
+    <section class="trial-banner" id="trialBanner">
+      <div>
+        <h3 id="trialTitle">Your 3-day free trial is active</h3>
+        <p id="trialMessage">You have full access to the website during your trial period.</p>
+      </div>
+      <div class="trial-actions">
+        <div class="trial-timer" id="trialTimer">
+          <span id="trialTimerLabel">Time left</span>
+          <strong id="trialCountdown">3d 00h 00m</strong>
+        </div>
+        <div id="upgradeControls" hidden>
+          <div class="upgrade-label">Full access to the website</div>
+          <button type="button" class="upgrade-button" id="upgradePlanBtn">Upgrade Plan</button>
+        </div>
+      </div>
+    </section>
+
     <section class="cards">
       <div class="card">
         <h4>Monthly Revenue</h4>
-        <h2 id="dRevenue">₹4,80,000</h2>
-        <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">↑ 12% vs last month</div>
+        <h2 id="dRevenue">€328</h2>
+        <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Up 12% vs last month</div>
       </div>
       <div class="card">
         <h4>Active Projects</h4>
         <h2 id="dProjects">18</h2>
         <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Across all clients</div>
       </div>
-      <div class="card">
+      <!-- <div class="card">
         <h4>Pending Approvals</h4>
         <h2 id="dApprovals">6</h2>
         <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Awaiting review</div>
-      </div>
+      </div> -->
       <div class="card">
-        <h4>Overdue Tasks</h4>
+        <h4>Complete project</h4>
         <h2 id="dOverdue">4</h2>
         <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Need attention</div>
       </div>
       <div class="card">
         <h4>Pending Payments</h4>
-        <h2 id="dPending">₹1,25,000</h2>
+        <h2 id="dPending">€1,049</h2>
         <div style="font-size:0.78rem;color:#aaa;margin-top:4px;">Outstanding balance</div>
       </div>
     </section>
 
-    <!-- Quick Navigation Cards -->
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:28px;">
       <a href="clients.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="font-size:1.6rem;margin-bottom:6px;">👥</div>
+        <div style="font-size:1.6rem;margin-bottom:6px;">Clients</div>
         <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Clients</div>
       </a>
       <a href="projects.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="font-size:1.6rem;margin-bottom:6px;">📁</div>
+        <div style="font-size:1.6rem;margin-bottom:6px;">Projects</div>
         <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Projects</div>
       </a>
       <a href="invoices.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="font-size:1.6rem;margin-bottom:6px;">🧾</div>
+        <div style="font-size:1.6rem;margin-bottom:6px;">Invoices</div>
         <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Invoices</div>
       </a>
-      <a href="reports.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="font-size:1.6rem;margin-bottom:6px;">📈</div>
-        <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Reports</div>
-      </a>
       <a href="team.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="font-size:1.6rem;margin-bottom:6px;">🧑‍💼</div>
+        <div style="font-size:1.6rem;margin-bottom:6px;">Team</div>
         <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Team</div>
       </a>
       <a href="services.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="font-size:1.6rem;margin-bottom:6px;">🛠</div>
+        <div style="font-size:1.6rem;margin-bottom:6px;">Services</div>
         <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Services</div>
       </a>
       <a href="access-roles.html" style="background:#fff;border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.1);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="font-size:1.6rem;margin-bottom:6px;">🔐</div>
+        <div style="font-size:1.6rem;margin-bottom:6px;">Roles</div>
         <div style="font-size:0.82rem;font-weight:600;color:#4b3fbf;">Roles</div>
       </a>
       <a href="invoice-create.html" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);border-radius:12px;padding:16px;text-align:center;text-decoration:none;box-shadow:0 4px 10px rgba(108,92,231,0.25);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-        <div style="font-size:1.6rem;margin-bottom:6px;">➕</div>
+        <div style="font-size:1.6rem;margin-bottom:6px;color:#fff;">New</div>
         <div style="font-size:0.82rem;font-weight:600;color:#fff;">New Invoice</div>
       </a>
     </div>
 
-    <!-- Charts Section -->
     <section class="charts">
       <div class="chart-box">
         <h3>Website Projects by Status</h3>
         <canvas id="projectStatusChart"></canvas>
       </div>
       <div class="chart-box">
-        <h3>Revenue Analytics — 2025</h3>
+        <h3>Revenue Analytics - 2025</h3>
         <canvas id="revenueChart"></canvas>
       </div>
     </section>
 
-    <!-- Recent Activity -->
     <section class="activity">
       <h3>Recent Activity</h3>
       <ul id="activityFeed">
-        <li>🎨 Homepage design approved by TechVision Pvt Ltd</li>
-        <li>💰 Payment of ₹29,500 received from ShopKart India</li>
-        <li>📋 New task assigned to Arjun — Contact Form Setup</li>
-        <li>🚀 StartupHub Landing Page moved to Live</li>
-        <li>⚠️ Overdue invoice reminder sent to FashionHub</li>
-        <li>👤 New client added — Digital Edge</li>
+        <li>Homepage design approved by TechVision Pvt Ltd</li>
+        <li>Payment of €328 received from ShopKart India</li>
+        <li>New task assigned to Arjun - Contact Form Setup</li>
+        <li>StartupHub Landing Page moved to Live</li>
+        <li>Overdue invoice reminder sent to FashionHub</li>
+        <li>New client added - Digital Edge</li>
       </ul>
     </section>
 
-    <!-- Urgent Alerts -->
     <section class="alerts">
       <h3>Urgent Alerts</h3>
-      <div class="alert danger">⚠️ 2 Projects with delayed delivery — FashionHub, Digital Edge</div>
-      <div class="alert warning">🌐 Hosting expiring in 10 days — TechVision (techvision.in)</div>
-      <div class="alert warning">🔒 SSL certificate expiring — FashionHub (fashionhub.in)</div>
-      <div class="alert danger">🧾 3 Unpaid Invoices totalling ₹94,800</div>
+      <div class="alert danger">2 projects with delayed delivery - FashionHub, Digital Edge</div>
+      <div class="alert warning">Hosting expiring in 10 days - TechVision (techvision.in)</div>
+      <div class="alert warning">SSL certificate expiring - FashionHub (fashionhub.in)</div>
+      <div class="alert danger">3 unpaid invoices totalling €1,049</div>
     </section>
-
   </main>
+</div>
+
+<div class="plans-modal" id="plansModal" aria-hidden="true">
+  <div class="plans-dialog" role="dialog" aria-modal="true" aria-labelledby="plansModalTitle">
+    <div class="plans-header">
+      <div>
+        <h2 id="plansModalTitle">Choose your plan</h2>
+        <p>Upgrade now to keep full access to the website after your 3-day trial.</p>
+      </div>
+      <button type="button" class="plans-close" id="closePlansModal" aria-label="Close plans modal">x</button>
+    </div>
+    <div class="plans-grid">
+      <article class="plan-card">
+        <h3>Personal</h3>
+        <p>Best for solo creators and small sites.</p>
+        <div class="plan-price">€16<span style="font-size:0.95rem;font-weight:600;color:#777;">/month</span></div>
+        <ul>
+          <li>Custom domain</li>
+          <li>SSL certificate</li>
+          <li>Unlimited bandwidth</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#" data-plan-name="Personal">Choose Personal</a>
+      </article>
+      <article class="plan-card featured">
+        <h3>Business</h3>
+        <p>For teams that need commerce and analytics.</p>
+        <div class="plan-price">€26<span style="font-size:0.95rem;font-weight:600;color:#777;">/month</span></div>
+        <ul>
+          <li>Everything in Personal</li>
+          <li>Advanced analytics</li>
+          <li>Professional email</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" data-plan-name="Business">Choose Business</a>
+      </article>
+      <article class="plan-card">
+        <h3>Commerce</h3>
+        <p>Built for stores with higher sales volume.</p>
+        <div class="plan-price">€40<span style="font-size:0.95rem;font-weight:600;color:#777;">/month</span></div>
+        <ul>
+          <li>Everything in Business</li>
+          <li>No transaction fees</li>
+          <li>Inventory management</li>
+          <li>Customer accounts</li>
+        </ul>
+        <a href="#" data-plan-name="Commerce">Choose Commerce</a>
+      </article>
+    </div>
+  </div>
+</div>
+
+<div class="plans-modal" id="deleteAccountModal" aria-hidden="true">
+  <div class="plans-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteAccountTitle">
+    <div class="plans-header">
+      <div>
+        <h2 id="deleteAccountTitle">Delete account</h2>
+        <p>This action is permanent.</p>
+      </div>
+      <button type="button" class="plans-close" id="closeDeleteAccountModal" aria-label="Close delete account modal">x</button>
+    </div>
+    <p class="danger-note">Your account data will be deleted permanently. Only your email address will be kept so the same email cannot get another free trial.</p>
+    <div class="danger-warning">This cannot be undone.</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <button type="button" class="danger-button ghost" id="cancelDeleteAccountBtn">Cancel</button>
+      <button type="button" class="danger-button" id="confirmDeleteAccountBtn">Yes, delete account</button>
+    </div>
+    <div id="deleteAccountMessage" class="form-message" style="margin-top:16px;text-align:left;"></div>
+  </div>
+</div>
+
+<div class="plans-modal" id="logoutModal" aria-hidden="true">
+  <div class="plans-dialog" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+    <div class="plans-header">
+      <div>
+        <h2 id="logoutModalTitle">Log out</h2>
+        <p>Do you want to log out?</p>
+      </div>
+      <button type="button" class="plans-close" id="closeLogoutModal" aria-label="Close logout modal">x</button>
+    </div>
+    <p class="danger-note">You will be signed out of your current account.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <button type="button" class="danger-button ghost" id="cancelLogoutBtn">Cancel</button>
+      <button type="button" class="danger-button" id="confirmLogoutBtn">Yes</button>
+    </div>
+  </div>
 </div>
 
 <script src="supabase-config.js"></script>
 <script src="dashboard.js"></script>
 <script>
-// Update date
 document.getElementById('dashDate').textContent = 'Good ' +
   (new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening') +
-  ' — ' + new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-
-// Load dynamic stats from Supabase / sample data
-(async () => {
-  try {
-    const [clients, projects, invoices] = await Promise.all([
-      fetchClients(), fetchProjects(), fetchInvoices()
-    ]);
-    const revenue = invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+(i.total_amount||0),0);
-    const pending = invoices.filter(i=>['pending','overdue'].includes(i.status)).reduce((s,i)=>s+(i.total_amount||0),0);
-    const active = projects.filter(p=>!['Live'].includes(p.status)).length;
-
-    document.getElementById('dRevenue').textContent = formatCurrency(revenue) || '₹4,80,000';
-    document.getElementById('dProjects').textContent = active || '18';
-    document.getElementById('dPending').textContent = formatCurrency(pending) || '₹1,25,000';
-  } catch(e) { /* use defaults */ }
-})();
+  ' - ' + new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 </script>
 </body>
 </html>
